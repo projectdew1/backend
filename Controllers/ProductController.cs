@@ -385,7 +385,7 @@ namespace backend.Controllers
 
             try
             {
-                Console.WriteLine("############################", file.FormFile.Length);
+
                 var id = table.OrderByDescending(u => u.TypeId).FirstOrDefault();
 
                 var number = _service.GenID(id != null ? id.TypeId : "", "G");
@@ -602,12 +602,33 @@ namespace backend.Controllers
         public IActionResult machine()
         {
             var table = _context.Machines;
+            var tableType = _context.Typemachines;
+            var tableCategory = _context.Categories;
 
 
 
             try
             {
-                var items = table.OrderBy(r => r.TypeId).ToList();
+                var items = table.OrderBy(r => r.MachineId).Select(r =>
+               new
+               {
+                   r.MachineId,
+                   r.MachineName,
+                   r.ItemsCode,
+                   r.MachineSeo,
+                   r.Soldout,
+                   r.Price,
+                   r.Discount,
+                   r.CreateDate,
+                   r.CreateUser,
+                   r.EditDate,
+                   r.EditUser,
+                   r.LocalImage,
+                   r.FileImage,
+                   r.TypeId,
+                   TypeName = tableType.Where(row => row.TypeId == r.TypeId).Select(e => e.TypeName).First(),
+                   CategoryName = tableCategory.Where(row => row.CategoryId == tableType.Where(row => row.TypeId == r.TypeId).Select(e => e.CategoryId).First()).Select(e => e.CategoryName).First(),
+               }).ToList();
 
                 return Ok(new
                 {
@@ -797,8 +818,7 @@ namespace backend.Controllers
                     {
                         var technicalID = tableDetailTech.OrderByDescending(u => u.DetailTechMachineId).FirstOrDefault();
                         var numberTechnical = _service.GenID(technicalID != null ? technicalID.DetailTechMachineId : "", "D");
-                        Console.WriteLine(item.tech);
-                        Console.WriteLine(item.name);
+
 
                         tableDetailTech.Add(
                             new Detailtechmachine
@@ -869,33 +889,102 @@ namespace backend.Controllers
         public IActionResult deleteMachine(string id)
 
         {
-            var table = _context.Typemachines;
-            var machine = _context.Machines;
+            var table = _context.Machines; // เครื่องจักร อันเดียว First  = รูปภาพ อันเดียว
+            var tableDetail = _context.Detailmachines; // คุณสมบัติ
+            var tableDetailTech = _context.Detailtechmachines; // คุณสมบัติทางเทคนิค
+            var tableExplain = _context.Explaimmachines; // คำอธิบาย อันเดียว First
+            var tableImages = _context.Imagemachines; // รูปภาพ  = รูปภาพ หลาย
+            var tableVideos = _context.Videomachines; // วีดีโอ
+            var tableManual = _context.Manualmachines; // คู่มือ
             try
             {
-                var items = table.Where(r => r.TypeId == id).First();
-                var check = machine.Where(r => r.TypeId == id).ToArray().Length;
+                // First อันเดียว
+                var items = table.Where(r => r.MachineId == id).First();
+                var itemsExplain = tableExplain.Where(r => r.MachineId == id).First();
 
-                if (check > 0)
-                {
-                    return Ok(new
-                    {
-                        status = 200,
-                        message = "กรุณาลบเครื่องจักรในหมวดหมู่นี้ทั้งหมด !",
-                    });
-                }
+                // ToList หลาย
+                var itemsDetail = tableDetail.Where(r => r.MachineId == id).ToList();
+                var itemsDetailTech = tableDetailTech.Where(r => r.MachineId == id).ToList();
+                var itemsImages = tableImages.Where(r => r.MachineId == id).ToList();
+                var itemsVideos = tableVideos.Where(r => r.MachineId == id).ToList();
+                var itemsManual = tableManual.Where(r => r.MachineId == id).ToList();
+
+
+
 
 
                 if (items.FileImage != null)
                 {
-                    var path = Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot/category", items.FileImage);
+                    var path = Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot/machine", items.FileImage);
                     if (System.IO.File.Exists(path))
                     {
                         System.IO.File.Delete(path);
                     }
                 }
 
+                if (itemsImages.Count() > 0)
+                {
+                    foreach (var item in itemsImages)
+                    {
+                        var path = Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot/machineImage", item.FileName);
+                        if (System.IO.File.Exists(path))
+                        {
+                            System.IO.File.Delete(path);
+                        }
+                    }
+                }
+
+                // First อันเดียว
                 table.Remove(items);
+                tableExplain.Remove(itemsExplain);
+
+                // ToList หลาย
+                if (itemsDetail.Count() > 0)
+                {
+
+                    foreach (var item in itemsDetail)
+                    {
+                        tableDetail.Remove(item);
+                    }
+                }
+
+                if (itemsDetailTech.Count() > 0)
+                {
+
+                    foreach (var item in itemsDetailTech)
+                    {
+                        tableDetailTech.Remove(item);
+                    }
+                }
+
+                if (itemsImages.Count() > 0)
+                {
+
+                    foreach (var item in itemsImages)
+                    {
+                        tableImages.Remove(item);
+                    }
+                }
+
+                if (itemsVideos.Count() > 0)
+                {
+
+                    foreach (var item in itemsVideos)
+                    {
+                        tableVideos.Remove(item);
+                    }
+                }
+
+                if (itemsManual.Count() > 0)
+                {
+
+                    foreach (var item in itemsManual)
+                    {
+                        tableManual.Remove(item);
+                    }
+                }
+
+
                 _context.SaveChanges();
                 return Ok(new
                 {
@@ -914,6 +1003,370 @@ namespace backend.Controllers
             }
         }
 
+        [HttpPost("[action]")]
+        public IActionResult idMachine(string id)
+        {
+
+            var table = _context.Machines; // เครื่องจักร อันเดียว First  = รูปภาพ อันเดียว
+            var tableDetail = _context.Detailmachines; // คุณสมบัติ
+            var tableDetailTech = _context.Detailtechmachines; // คุณสมบัติทางเทคนิค
+            var tableExplain = _context.Explaimmachines; // คำอธิบาย อันเดียว First
+            var tableImages = _context.Imagemachines; // รูปภาพ  = รูปภาพ หลาย
+            var tableVideos = _context.Videomachines; // วีดีโอ
+            var tableManual = _context.Manualmachines; // คู่มือ
+
+            try
+            {
+                var items = table.Where(r => r.MachineId == id).Select(r => new
+                {
+                    r.CreateDate,
+                    r.CreateUser,
+                    r.EditDate,
+                    r.EditUser,
+                    r.Discount,
+                    r.FileImage,
+                    r.ItemsCode,
+                    r.LocalImage,
+                    r.MachineId,
+                    r.MachineName,
+                    r.MachineSeo,
+                    r.Price,
+                    r.Soldout,
+                    r.TypeId,
+                    DetailTech = tableDetailTech.Where(r => r.MachineId == id).ToList(),
+                    Detail = tableDetail.Where(r => r.MachineId == id).ToList(),
+                    Explain = tableExplain.Where(r => r.MachineId == id).ToList(),
+                    Image = tableImages.Where(r => r.MachineId == id).ToList(),
+                    Manual = tableManual.Where(r => r.MachineId == id).ToList(),
+                    Video = tableVideos.Where(r => r.MachineId == id).ToList(),
+
+                }).First();
+
+
+
+
+
+                return Ok(new
+                {
+                    status = 200,
+                    message = "success",
+                    items,
+
+                });
+
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(Convert.ToInt32(HttpStatusCode.InternalServerError), new
+                {
+                    status = HttpStatusCode.InternalServerError,
+                    message = ex.Message
+                });
+            }
+        }
+
+
+        [HttpPost("[action]")]
+        public IActionResult updateMachine(string seo, string typeID, string machineName,
+                string machineModels, int price, int discount, bool soldout, string user, string explain, string detail, string manual, string videos, string technical, string id, [FromForm] FileUploadList file
+                )
+        {
+            var table = _context.Machines; // เครื่องจักร อันเดียว First  = รูปภาพ อันเดียว
+            var tableDetail = _context.Detailmachines; // คุณสมบัติ
+            var tableDetailTech = _context.Detailtechmachines; // คุณสมบัติทางเทคนิค
+            var tableExplain = _context.Explaimmachines; // คำอธิบาย อันเดียว First
+            var tableImages = _context.Imagemachines; // รูปภาพ  = รูปภาพ หลาย
+            var tableVideos = _context.Videomachines; // วีดีโอ
+            var tableManual = _context.Manualmachines; // คู่มือ
+            try
+            {
+
+                var items = table.Where(r => r.MachineId == id).First();
+                var duplicate = table.Where(r => r.TypeId == typeID && r.MachineName == machineName).ToArray().Length;
+
+
+                if (items.MachineName != machineName && duplicate > 0)
+                {
+                    return Ok(new
+                    {
+                        status = 200,
+                        message = "ชื่อสินค้าผลิตภัณฑ์ซ้ำ !",
+                    });
+                }
+
+                var imageFileName = file.FormFile != null ? id + DateTime.Now.ToString("ddMMyy_HHmmss") + file.FormFile.FileName.Substring(file.FormFile.FileName.IndexOf(".")) : null;
+
+                if (items.FileImage != null && file.FormFile != null)
+                {
+                    string path_delete = Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot/machine", items.FileImage);
+                    if (System.IO.File.Exists(path_delete))
+                    {
+                        System.IO.File.Delete(path_delete);
+                    }
+
+                    string path = Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot/machine", imageFileName);
+                    using (Stream stream = new FileStream(path, FileMode.Create))
+                    {
+                        file.FormFile.CopyTo(stream);
+                        items.FileImage = imageFileName;
+                        items.LocalImage = "/machine/" + imageFileName;
+                    }
+                }
+                else if (items.FileImage == null && file.FormFile != null)
+                {
+                    string path = Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot/machine", imageFileName);
+                    using (Stream stream = new FileStream(path, FileMode.Create))
+                    {
+                        file.FormFile.CopyTo(stream);
+                        items.FileImage = imageFileName;
+                        items.LocalImage = "/machine/" + imageFileName;
+                    }
+                }
+
+
+
+                items.MachineSeo = seo;
+                items.MachineName = machineName;
+                items.Price = price;
+                items.Discount = discount;
+                items.Soldout = Convert.ToSByte(soldout);
+                items.ItemsCode = machineModels;
+                items.TypeId = typeID;
+                items.EditDate = DateTime.Now;
+                items.EditUser = user;
+                _context.SaveChanges();
+
+                ////////// explain /////////
+                var itemsExplain = tableExplain.Where(r => r.MachineId == id).First();
+                itemsExplain.ExplainDetail = explain;
+                itemsExplain.EditDate = DateTime.Now;
+                itemsExplain.EditUser = user;
+                _context.SaveChanges();
+
+                ////////// remove /////////
+                // ToList หลาย
+                var itemsDetail = tableDetail.Where(r => r.MachineId == id).ToList();
+                var itemsDetailTech = tableDetailTech.Where(r => r.MachineId == id).ToList();
+                var itemsImages = tableImages.Where(r => r.MachineId == id).ToList();
+                var itemsVideos = tableVideos.Where(r => r.MachineId == id).ToList();
+                var itemsManual = tableManual.Where(r => r.MachineId == id).ToList();
+
+                /// image
+                if (itemsImages.Count() > 0)
+                {
+                    foreach (var item in itemsImages)
+                    {
+                        var path = Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot/machineImage", item.FileName);
+                        if (System.IO.File.Exists(path))
+                        {
+                            System.IO.File.Delete(path);
+                        }
+                    }
+                }
+
+                if (itemsDetail.Count() > 0)
+                {
+
+                    foreach (var item in itemsDetail)
+                    {
+                        tableDetail.Remove(item);
+                    }
+                }
+
+                if (itemsDetailTech.Count() > 0)
+                {
+
+                    foreach (var item in itemsDetailTech)
+                    {
+                        tableDetailTech.Remove(item);
+                    }
+                }
+
+                if (itemsImages.Count() > 0)
+                {
+
+                    foreach (var item in itemsImages)
+                    {
+                        tableImages.Remove(item);
+                    }
+                }
+
+                if (itemsVideos.Count() > 0)
+                {
+
+                    foreach (var item in itemsVideos)
+                    {
+                        tableVideos.Remove(item);
+                    }
+                }
+
+                if (itemsManual.Count() > 0)
+                {
+
+                    foreach (var item in itemsManual)
+                    {
+                        tableManual.Remove(item);
+                    }
+                }
+
+                _context.SaveChanges();
+                ////////// remove /////////
+
+                ///////////////////////////// machine Detail คุณสมบัติ List ///////////////////////               
+
+                if (detail != null)
+                {
+                    var list = detail.Split(new char[] { ',' }).ToList();
+                    foreach (var item in list)
+                    {
+
+                        var detailID = tableDetail.OrderByDescending(u => u.DetailMachineId).FirstOrDefault();
+                        var numberDetail = _service.GenID(detailID != null ? detailID.DetailMachineId : "", "D");
+
+                        tableDetail.Add(
+                            new Detailmachine
+                            {
+                                MachineId = id,
+                                DetailMachineId = numberDetail,
+                                Detail = item,
+                                EditDate = DateTime.Now,
+                                EditUser = user,
+                            }
+                        );
+                        _context.SaveChanges();
+                    }
+                }
+
+                ///////////////////////////// machine Manual คู่มือ List ///////////////////////               
+
+                if (manual != null)
+                {
+                    var listmanual = manual.Split(new char[] { ',' }).ToList();
+                    foreach (var item in listmanual)
+                    {
+                        var manualID = tableManual.OrderByDescending(u => u.ManualMachineId).FirstOrDefault();
+                        var numberManual = _service.GenID(manualID != null ? manualID.ManualMachineId : "", "N");
+
+                        tableManual.Add(
+                            new Manualmachine
+                            {
+                                MachineId = id,
+                                ManualMachineId = numberManual,
+                                Manual = item,
+                                EditDate = DateTime.Now,
+                                EditUser = user,
+                            }
+                        );
+                        _context.SaveChanges();
+                    }
+                }
+
+                ///////////////////////////// machine Videos วีดีโอ List ///////////////////////               
+
+                if (videos != null)
+                {
+                    var listvideos = videos.Split(new char[] { ',' }).ToList();
+                    foreach (var item in listvideos)
+                    {
+                        var videosID = tableVideos.OrderByDescending(u => u.VideoMachineId).FirstOrDefault();
+                        var numberVideos = _service.GenID(videosID != null ? videosID.VideoMachineId : "", "V");
+
+                        tableVideos.Add(
+                            new Videomachine
+                            {
+                                MachineId = id,
+                                VideoMachineId = numberVideos,
+                                Link = item,
+                            }
+                        );
+                        _context.SaveChanges();
+                    }
+                }
+
+                ///////////////////////////// machine Technical คุณสมบัติทางเทคนิค List /////////////////////// 
+
+                if (technical != null)
+                {
+                    List<TechnicalTtype> parts = new List<TechnicalTtype>();
+                    var stepA = technical.Split(new char[] { ',' }).ToList();
+                    for (int i = 0; i < stepA.ToArray().Length; i++)
+                    {
+                        var item = stepA[i];
+                        var stepB = item.Split(new char[] { '-' }).ToList();
+                        var tech = stepB[0].ToString().Substring(5, stepB[0].Length - 5);
+                        var name = stepB[1].ToString().Substring(5, stepB[1].Length - 5);
+                        parts.Add(new TechnicalTtype() { tech = tech, name = name });
+                    }
+
+                    foreach (var item in parts)
+                    {
+                        var technicalID = tableDetailTech.OrderByDescending(u => u.DetailTechMachineId).FirstOrDefault();
+                        var numberTechnical = _service.GenID(technicalID != null ? technicalID.DetailTechMachineId : "", "D");
+
+
+                        tableDetailTech.Add(
+                            new Detailtechmachine
+                            {
+                                MachineId = id,
+                                DetailTechMachineId = numberTechnical,
+                                DetailTech = item.name,
+                                TechnicallyId = item.tech,
+                                EditDate = DateTime.Now,
+                                EditUser = user,
+                            }
+                        );
+                        _context.SaveChanges();
+                    }
+                }
+
+                ///////////////////////////// machine  รูปภาพ List /////////////////////// 
+
+
+                if (file.FormFileMulti != null)
+                {
+
+                    foreach (var item in file.FormFileMulti)
+                    {
+                        var imageID = tableImages.OrderByDescending(u => u.ImageMachineId).FirstOrDefault();
+                        var numberImage = _service.GenID(imageID != null ? imageID.ImageMachineId : "", "I");
+
+                        var imageFileMultiName = numberImage + DateTime.Now.ToString("ddMMyy_HHmmss") + item.FileName.Substring(item.FileName.IndexOf("."));
+
+                        string path = Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot/machineImage", imageFileMultiName);
+                        using (Stream stream = new FileStream(path, FileMode.Create))
+                        {
+                            item.CopyTo(stream);
+                        }
+
+                        tableImages.Add(
+                           new Imagemachine
+                           {
+                               MachineId = id,
+                               ImageMachineId = numberImage,
+                               FileName = imageFileMultiName,
+                               Local = "/machineImage/" + imageFileMultiName
+                           }
+                       );
+                        _context.SaveChanges();
+                    }
+                }
+
+
+                return Ok(new
+                {
+                    status = 200,
+                    message = "success",
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(Convert.ToInt32(HttpStatusCode.InternalServerError), new
+                {
+                    status = HttpStatusCode.InternalServerError,
+                    message = ex.Message
+                });
+            }
+        }
         ////////////////////////////////////// คุณสมบัติทางเทคนิค //////////////////////////////////////
 
         [HttpPost("[action]")]
