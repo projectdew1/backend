@@ -148,11 +148,11 @@ namespace backend.Controllers
                     });
                 }
 
-                var imageFileName = file.FormFile != null ? number + DateTime.Now.ToString("ddMMyy_HHmmss") + file.FormFile.FileName.Substring(file.FormFile.FileName.IndexOf(".")) : null;
+                var imageFileName = file.FormFile != null ? number + DateTime.Now.ToString("ddMMyy_HHmmss") + file.FormFile.FileName.Substring(file.FormFile.FileName.LastIndexOf(".")) : null;
 
                 if (file.FormFile != null)
                 {
-                    // int index = file.FormFile.FileName.IndexOf(".");
+                    // int index = file.FormFile.FileName.LastIndexOf(".");
                     // string typefile = file.FormFile.FileName.Substring(index);
                     string path = Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot/category", imageFileName);
                     using (Stream stream = new FileStream(path, FileMode.Create))
@@ -271,7 +271,7 @@ namespace backend.Controllers
                     }
                 }
 
-                var imageFileName = file.FormFile != null ? id + DateTime.Now.ToString("ddMMyy_HHmmss") + file.FormFile.FileName.Substring(file.FormFile.FileName.IndexOf(".")) : null;
+                var imageFileName = file.FormFile != null ? id + DateTime.Now.ToString("ddMMyy_HHmmss") + file.FormFile.FileName.Substring(file.FormFile.FileName.LastIndexOf(".")) : null;
 
                 if (items.FileImage != null && file.FormFile != null)
                 {
@@ -402,7 +402,7 @@ namespace backend.Controllers
                     });
                 }
 
-                var imageFileName = file.FormFile != null ? number + DateTime.Now.ToString("ddMMyy_HHmmss") + file.FormFile.FileName.Substring(file.FormFile.FileName.IndexOf(".")) : null;
+                var imageFileName = file.FormFile != null ? number + DateTime.Now.ToString("ddMMyy_HHmmss") + file.FormFile.FileName.Substring(file.FormFile.FileName.LastIndexOf(".")) : null;
 
                 if (file.FormFile != null)
                 {
@@ -540,7 +540,7 @@ namespace backend.Controllers
                     });
                 }
 
-                var imageFileName = file.FormFile != null ? id + DateTime.Now.ToString("ddMMyy_HHmmss") + file.FormFile.FileName.Substring(file.FormFile.FileName.IndexOf(".")) : null;
+                var imageFileName = file.FormFile != null ? id + DateTime.Now.ToString("ddMMyy_HHmmss") + file.FormFile.FileName.Substring(file.FormFile.FileName.LastIndexOf(".")) : null;
 
                 if (items.FileImage != null && file.FormFile != null)
                 {
@@ -681,7 +681,7 @@ namespace backend.Controllers
                 }
 
                 ///////////////////////////// machine ///////////////////////
-                var imageFileName = file.FormFile != null ? number + DateTime.Now.ToString("ddMMyy_HHmmss") + file.FormFile.FileName.Substring(file.FormFile.FileName.IndexOf(".")) : null;
+                var imageFileName = file.FormFile != null ? number + DateTime.Now.ToString("ddMMyy_HHmmss") + file.FormFile.FileName.Substring(file.FormFile.FileName.LastIndexOf(".")) : null;
 
                 if (file.FormFile != null)
                 {
@@ -846,7 +846,7 @@ namespace backend.Controllers
                         var imageID = tableImages.OrderByDescending(u => u.ImageMachineId).FirstOrDefault();
                         var numberImage = _service.GenID(imageID != null ? imageID.ImageMachineId : "", "I");
 
-                        var imageFileMultiName = numberImage + DateTime.Now.ToString("ddMMyy_HHmmss") + item.FileName.Substring(item.FileName.IndexOf("."));
+                        var imageFileMultiName = numberImage + DateTime.Now.ToString("ddMMyy_HHmmss") + item.FileName.Substring(item.FileName.LastIndexOf("."));
 
                         string path = Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot/machineImage", imageFileMultiName);
                         using (Stream stream = new FileStream(path, FileMode.Create))
@@ -1094,7 +1094,7 @@ namespace backend.Controllers
                     });
                 }
 
-                var imageFileName = file.FormFile != null ? id + DateTime.Now.ToString("ddMMyy_HHmmss") + file.FormFile.FileName.Substring(file.FormFile.FileName.IndexOf(".")) : null;
+                var imageFileName = file.FormFile != null ? id + DateTime.Now.ToString("ddMMyy_HHmmss") + file.FormFile.FileName.Substring(file.FormFile.FileName.LastIndexOf(".")) : null;
 
                 if (items.FileImage != null && file.FormFile != null)
                 {
@@ -1330,7 +1330,7 @@ namespace backend.Controllers
                         var imageID = tableImages.OrderByDescending(u => u.ImageMachineId).FirstOrDefault();
                         var numberImage = _service.GenID(imageID != null ? imageID.ImageMachineId : "", "I");
 
-                        var imageFileMultiName = numberImage + DateTime.Now.ToString("ddMMyy_HHmmss") + item.FileName.Substring(item.FileName.IndexOf("."));
+                        var imageFileMultiName = numberImage + DateTime.Now.ToString("ddMMyy_HHmmss") + item.FileName.Substring(item.FileName.LastIndexOf("."));
 
                         string path = Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot/machineImage", imageFileMultiName);
                         using (Stream stream = new FileStream(path, FileMode.Create))
