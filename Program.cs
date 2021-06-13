@@ -22,7 +22,7 @@ namespace backend
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder.UseStartup<Startup>();
-                    webBuilder.UseUrls("http://localhost:5003", "https://localhost:5004");
+                    // webBuilder.UseUrls("http://localhost:5003", "https://localhost:5004");
                 });
     }
 }
