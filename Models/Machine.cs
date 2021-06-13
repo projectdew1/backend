@@ -10,6 +10,7 @@ namespace backend.Models
         public Machine()
         {
             Detailmachines = new HashSet<Detailmachine>();
+            Detailtechmachines = new HashSet<Detailtechmachine>();
             Explaimmachines = new HashSet<Explaimmachine>();
             Imagemachines = new HashSet<Imagemachine>();
             Manualmachines = new HashSet<Manualmachine>();
@@ -36,6 +37,7 @@ namespace backend.Models
 
         public virtual Typemachine Type { get; set; }
         public virtual ICollection<Detailmachine> Detailmachines { get; set; }
+        public virtual ICollection<Detailtechmachine> Detailtechmachines { get; set; }
         public virtual ICollection<Explaimmachine> Explaimmachines { get; set; }
         public virtual ICollection<Imagemachine> Imagemachines { get; set; }
         public virtual ICollection<Manualmachine> Manualmachines { get; set; }

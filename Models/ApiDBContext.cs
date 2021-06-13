@@ -32,8 +32,6 @@ namespace backend.Models
         public virtual DbSet<User> Users { get; set; }
         public virtual DbSet<Videomachine> Videomachines { get; set; }
 
-
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Category>(entity =>
@@ -74,6 +72,12 @@ namespace backend.Models
 
                 entity.Property(e => e.LocalImage)
                     .HasColumnType("varchar(300)")
+                    .HasCharSet("utf8")
+                    .HasCollation("utf8_general_ci");
+
+                entity.Property(e => e.Seo)
+                    .HasColumnType("varchar(10000)")
+                    .HasColumnName("seo")
                     .HasCharSet("utf8")
                     .HasCollation("utf8_general_ci");
             });
@@ -171,7 +175,7 @@ namespace backend.Models
             {
                 entity.ToTable("detailtechmachine");
 
-                entity.HasIndex(e => e.TechnicallyId, "techID_idx");
+                entity.HasIndex(e => e.MachineId, "machineID_idx");
 
                 entity.Property(e => e.DetailTechMachineId)
                     .HasColumnType("varchar(7)")
@@ -214,10 +218,10 @@ namespace backend.Models
                     .HasCharSet("utf8")
                     .HasCollation("utf8_general_ci");
 
-                entity.HasOne(d => d.Technically)
+                entity.HasOne(d => d.Machine)
                     .WithMany(p => p.Detailtechmachines)
-                    .HasForeignKey(d => d.TechnicallyId)
-                    .HasConstraintName("techID");
+                    .HasForeignKey(d => d.MachineId)
+                    .HasConstraintName("machTech");
             });
 
             modelBuilder.Entity<Explaimmachine>(entity =>

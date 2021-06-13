@@ -29,11 +29,12 @@ namespace backend.Controllers
             _service = service;
         }
 
-        [HttpPost("[action]")]
+        [HttpGet("[action]")]
         [AllowAnonymous]
         public IActionResult header()
         {
             var table = _context.Categories;
+            var tableType = _context.Typemachines;
 
             try
             {
@@ -41,15 +42,18 @@ namespace backend.Controllers
                 {
                     Id = r.CategoryId,
                     Name = r.CategoryName,
+                    r.LocalImage,
+                    r.FileImage,
+                    Items = tableType.Where(row => row.CategoryId == r.CategoryId).Count()
                 }).ToList();
-                var len = items.Count();
+
 
                 return Ok(new
                 {
                     status = 200,
                     message = "success",
                     items,
-                    length = len,
+
 
                 });
             }
@@ -62,6 +66,61 @@ namespace backend.Controllers
                 });
             }
         }
+
+
+        [HttpGet("[action]")]
+        [AllowAnonymous]
+        public IActionResult idHeader(string name)
+        {
+            var table = _context.Categories;
+            var tableType = _context.Typemachines;
+            var tableMachine = _context.Machines;
+
+            try
+            {
+                var id = table.Where(r => r.CategoryName == name).Select(r => r.CategoryId).First();
+                var seo = table.Where(r => r.CategoryName == name).Select(r => r.Seo).First();
+                var ifName = table.Where(r => r.CategoryName == name).Select(r => r.CategoryName).First();
+                var items = tableType.Where(r => r.CategoryId == id).Select(r => new
+                {
+                    r.TypeName,
+                    r.TypeSeo,
+                    Machine = tableMachine.Where(row => row.TypeId == r.TypeId).Select(row => new
+                    {
+                        row.MachineName,
+                        row.LocalImage,
+                        row.FileImage,
+                        row.MachineId,
+                        row.Price,
+                        row.Discount,
+                        row.Soldout
+                    }).ToList()
+                }).ToList();
+
+
+
+                return Ok(new
+                {
+                    status = 200,
+                    message = "success",
+                    id,
+                    seo = seo == "" || seo == null ? ifName : seo,
+                    items,
+
+
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(Convert.ToInt32(HttpStatusCode.InternalServerError), new
+                {
+                    status = HttpStatusCode.InternalServerError,
+                    message = ex.Message
+                });
+            }
+        }
+
+
 
 
     }

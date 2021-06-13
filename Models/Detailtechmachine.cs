@@ -16,6 +16,6 @@ namespace backend.Models
         public string EditUser { get; set; }
         public string TechnicallyId { get; set; }
 
-        public virtual Technically Technically { get; set; }
+        public virtual Machine Machine { get; set; }
     }
 }

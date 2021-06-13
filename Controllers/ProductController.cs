@@ -117,7 +117,7 @@ namespace backend.Controllers
         }
 
         [HttpPost("[action]")]
-        public IActionResult addCategory(string categoryName, string user, [FromForm] FileUpload file)
+        public IActionResult addCategory(string categoryName, string user, string seo, [FromForm] FileUpload file)
         {
             var table = _context.Categories;
 
@@ -166,6 +166,7 @@ namespace backend.Controllers
                        {
                            CategoryId = number,
                            CategoryName = categoryName,
+                           Seo = seo,
                            CreateDate = DateTime.Now,
                            CreateUser = user,
                            FileImage = imageFileName,
@@ -241,7 +242,7 @@ namespace backend.Controllers
         }
 
         [HttpPut("[action]")]
-        public IActionResult update(string id, string categoryName, string user, [FromForm] FileUpload file)
+        public IActionResult update(string id, string categoryName, string user, string seo, [FromForm] FileUpload file)
         {
             var table = _context.Categories;
 
@@ -302,6 +303,7 @@ namespace backend.Controllers
 
 
                 items.CategoryName = categoryName;
+                items.Seo = seo;
                 items.EditDate = DateTime.Now;
                 items.EditUser = user;
 
@@ -1367,6 +1369,8 @@ namespace backend.Controllers
                 });
             }
         }
+
+
         ////////////////////////////////////// คุณสมบัติทางเทคนิค //////////////////////////////////////
 
         [HttpPost("[action]")]

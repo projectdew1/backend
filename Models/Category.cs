@@ -20,6 +20,7 @@ namespace backend.Models
         public string EditUser { get; set; }
         public string FileImage { get; set; }
         public string LocalImage { get; set; }
+        public string Seo { get; set; }
 
         public virtual ICollection<Typemachine> Typemachines { get; set; }
     }
