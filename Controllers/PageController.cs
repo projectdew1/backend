@@ -35,6 +35,7 @@ namespace backend.Controllers
         {
             var table = _context.Categories;
             var tableType = _context.Typemachines;
+            var tableMachine = _context.Machines;
 
             try
             {
@@ -42,9 +43,13 @@ namespace backend.Controllers
                 {
                     Id = r.CategoryId,
                     Name = r.CategoryName,
+                    enID = _service.encoding(r.CategoryId),
                     r.LocalImage,
                     r.FileImage,
-                    Items = tableType.Where(row => row.CategoryId == r.CategoryId).Count()
+                    Items = tableType.Where(row => row.CategoryId == r.CategoryId).Count(),
+                    product = (from t1 in tableType.Where(row => row.CategoryId == r.CategoryId)
+                               join t2 in tableMachine on t1.TypeId equals t2.TypeId
+                               select t2).Count()
                 }).ToList();
 
 
@@ -75,13 +80,14 @@ namespace backend.Controllers
             var table = _context.Categories;
             var tableType = _context.Typemachines;
             var tableMachine = _context.Machines;
+            var decodeID = _service.decoding(name);
 
             try
             {
-                var id = table.Where(r => r.CategoryName == name).Select(r => r.CategoryId).First();
-                var seo = table.Where(r => r.CategoryName == name).Select(r => r.Seo).First();
-                var ifName = table.Where(r => r.CategoryName == name).Select(r => r.CategoryName).First();
-                var items = tableType.Where(r => r.CategoryId == id).Select(r => new
+                var cateName = table.Where(r => r.CategoryId == decodeID).Select(r => r.CategoryName).First();
+                var seo = table.Where(r => r.CategoryId == decodeID).Select(r => r.Seo).First();
+                var ifName = table.Where(r => r.CategoryId == decodeID).Select(r => r.CategoryName).First();
+                var items = tableType.Where(r => r.CategoryId == decodeID).Select(r => new
                 {
                     r.TypeName,
                     r.TypeSeo,
@@ -93,7 +99,8 @@ namespace backend.Controllers
                         row.MachineId,
                         row.Price,
                         row.Discount,
-                        row.Soldout
+                        row.Soldout,
+                        id = _service.encoding(row.MachineId)
                     }).ToList()
                 }).ToList();
 
@@ -103,9 +110,109 @@ namespace backend.Controllers
                 {
                     status = 200,
                     message = "success",
-                    id,
+                    name = cateName,
                     seo = seo == "" || seo == null ? ifName : seo,
                     items,
+
+
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(Convert.ToInt32(HttpStatusCode.InternalServerError), new
+                {
+                    status = HttpStatusCode.InternalServerError,
+                    message = ex.Message
+                });
+            }
+        }
+
+        [HttpGet("[action]")]
+        [AllowAnonymous]
+        public IActionResult product()
+        {
+            var table = _context.Machines;
+
+            try
+            {
+                var items = table.OrderBy(r => r.MachineId).Select(r => new
+                {
+                    r.MachineId,
+                    id = _service.encoding(r.MachineId)
+                }).ToList();
+
+
+                return Ok(new
+                {
+                    status = 200,
+                    message = "success",
+                    items,
+
+
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(Convert.ToInt32(HttpStatusCode.InternalServerError), new
+                {
+                    status = HttpStatusCode.InternalServerError,
+                    message = ex.Message
+                });
+            }
+        }
+
+
+
+
+        [HttpGet("[action]")]
+        [AllowAnonymous]
+        public IActionResult idProduct(string id)
+        {
+            var table = _context.Machines; // เครื่องจักร อันเดียว First  = รูปภาพ อันเดียว
+            var tableDetail = _context.Detailmachines; // คุณสมบัติ
+            var tableDetailTech = _context.Detailtechmachines; // คุณสมบัติทางเทคนิค
+            var tableExplain = _context.Explaimmachines; // คำอธิบาย อันเดียว First
+            var tableImages = _context.Imagemachines; // รูปภาพ  = รูปภาพ หลาย
+            var tableVideos = _context.Videomachines; // วีดีโอ
+            var tableManual = _context.Manualmachines; // คู่มือ
+            var decodeID = _service.decoding(id);
+
+            try
+            {
+                var seo = table.Where(r => r.MachineId == decodeID).Select(r => r.MachineSeo).First();
+                var items = table.Where(r => r.MachineId == decodeID).Select(r => new
+                {
+                    r.CreateDate,
+                    r.CreateUser,
+                    r.EditDate,
+                    r.EditUser,
+                    r.Discount,
+                    r.FileImage,
+                    r.ItemsCode,
+                    r.LocalImage,
+                    r.MachineId,
+                    r.MachineName,
+                    r.MachineSeo,
+                    r.Price,
+                    r.Soldout,
+                    r.TypeId,
+                    DetailTech = tableDetailTech.Where(r => r.MachineId == id).ToList(),
+                    Detail = tableDetail.Where(r => r.MachineId == id).ToList(),
+                    Explain = tableExplain.Where(r => r.MachineId == id).ToList(),
+                    Image = tableImages.Where(r => r.MachineId == id).ToList(),
+                    Manual = tableManual.Where(r => r.MachineId == id).ToList(),
+                    Video = tableVideos.Where(r => r.MachineId == id).ToList(),
+
+                }).First();
+
+
+                return Ok(new
+                {
+                    status = 200,
+                    message = "success",
+                    items,
+                    seo,
+
 
 
                 });

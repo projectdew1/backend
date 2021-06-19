@@ -17,5 +17,9 @@ namespace backend.interfaces
         string PasswordSalt();
 
         string GenID(string id, string prefix);
+
+        string encoding(string toEncode);
+
+        string decoding(string toDecode);
     }
 }

@@ -157,5 +157,21 @@ namespace backend.service
 
             }
         }
+
+        public string encoding(string toEncode)
+        {
+            byte[] bytes = Encoding.GetEncoding(28591).GetBytes(toEncode);
+            string toReturn = System.Convert.ToBase64String(bytes);
+            return toReturn;
+        }
+
+        public string decoding(string toDecode)
+        {
+            byte[] data = System.Convert.FromBase64String(toDecode);
+            string toReturn = System.Text.ASCIIEncoding.ASCII.GetString(data);
+            return toReturn;
+        }
+
     }
+
 }
