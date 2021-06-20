@@ -196,12 +196,12 @@ namespace backend.Controllers
                     r.Price,
                     r.Soldout,
                     r.TypeId,
-                    DetailTech = tableDetailTech.Where(r => r.MachineId == id).ToList(),
-                    Detail = tableDetail.Where(r => r.MachineId == id).ToList(),
-                    Explain = tableExplain.Where(r => r.MachineId == id).ToList(),
-                    Image = tableImages.Where(r => r.MachineId == id).ToList(),
-                    Manual = tableManual.Where(r => r.MachineId == id).ToList(),
-                    Video = tableVideos.Where(r => r.MachineId == id).ToList(),
+                    DetailTech = tableDetailTech.Where(r => r.MachineId == decodeID).ToList(),
+                    Detail = tableDetail.Where(r => r.MachineId == decodeID).ToList(),
+                    Explain = tableExplain.Where(r => r.MachineId == decodeID).ToList(),
+                    Image = tableImages.Where(r => r.MachineId == decodeID).ToList(),
+                    Manual = tableManual.Where(r => r.MachineId == decodeID).ToList(),
+                    Video = tableVideos.Where(r => r.MachineId == decodeID).ToList(),
 
                 }).First();
 
