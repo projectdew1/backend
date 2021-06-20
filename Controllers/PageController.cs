@@ -175,6 +175,8 @@ namespace backend.Controllers
             var tableImages = _context.Imagemachines; // รูปภาพ  = รูปภาพ หลาย
             var tableVideos = _context.Videomachines; // วีดีโอ
             var tableManual = _context.Manualmachines; // คู่มือ
+            var tableType = _context.Typemachines; // 
+            var tableTech = _context.Technicallies; // 
             var decodeID = _service.decoding(id);
 
             try
@@ -196,7 +198,16 @@ namespace backend.Controllers
                     r.Price,
                     r.Soldout,
                     r.TypeId,
-                    DetailTech = tableDetailTech.Where(r => r.MachineId == decodeID).ToList(),
+                    Type = tableType.Where(row => row.TypeId == r.TypeId).Select(r => new
+                    {
+                        r.Category.CategoryName,
+                        idCategory = _service.encoding(r.Category.CategoryId),
+                        r.TypeName
+                    }).FirstOrDefault(),
+                    // DetailTech = tableDetailTech.Where(r => r.MachineId == decodeID).ToList(),
+                    DetailTech = (from t1 in tableDetailTech.Where(row => row.MachineId == decodeID)
+                                  join t2 in tableTech on t1.TechnicallyId equals t2.TechnicallyId
+                                  select new { t1.DetailTech, t1.DetailTechMachineId, TechDetail = t1.TechnicallyId, t2.TechnicallyId, t2.TechnicallyName }).ToList(),
                     Detail = tableDetail.Where(r => r.MachineId == decodeID).ToList(),
                     Explain = tableExplain.Where(r => r.MachineId == decodeID).ToList(),
                     Image = tableImages.Where(r => r.MachineId == decodeID).ToList(),
