@@ -212,7 +212,11 @@ namespace backend.Controllers
                     Explain = tableExplain.Where(r => r.MachineId == decodeID).ToList(),
                     Image = tableImages.Where(r => r.MachineId == decodeID).ToList(),
                     Manual = tableManual.Where(r => r.MachineId == decodeID).ToList(),
-                    Video = tableVideos.Where(r => r.MachineId == decodeID).ToList(),
+                    Video = tableVideos.Where(r => r.MachineId == decodeID).Select(r => new
+                    {
+                        r.Link,
+                        LinkMap = _service.covertLink(r.Link),
+                    }).ToList(),
 
                 }).First();
 

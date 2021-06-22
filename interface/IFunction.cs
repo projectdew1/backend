@@ -21,5 +21,7 @@ namespace backend.interfaces
         string encoding(string toEncode);
 
         string decoding(string toDecode);
+
+        string covertLink(string link);
     }
 }

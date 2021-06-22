@@ -172,6 +172,17 @@ namespace backend.service
             return toReturn;
         }
 
+        public string covertLink(string link)
+        {
+            int index = link.LastIndexOf("?v=");
+            int slash = link.LastIndexOf("/");
+            if (index > 0)
+            {
+                return link.Substring(index + 3);
+            }
+            return link.Substring(slash + 1);
+        }
+
     }
 
 }
