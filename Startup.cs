@@ -1,10 +1,9 @@
 
-using System;
-using System.Net;
 using System.Text;
 using backend.interfaces;
 using backend.Models;
 using backend.service;
+using Microsoft.AspNetCore.Authentication.Certificate;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -44,20 +43,10 @@ namespace backend
                 options.UseMySql(Configuration.GetConnectionString("DefaultConnection"), Microsoft.EntityFrameworkCore.ServerVersion.FromString("8.0.23-mysql"));
             }
            );
-            services.AddHsts(options =>
-    {
-        options.Preload = true;
-        options.IncludeSubDomains = true;
-        options.MaxAge = TimeSpan.FromDays(365);
-        options.ExcludedHosts.Add("kmspacking.com");
-        options.ExcludedHosts.Add("www.kmspacking.com");
-    });
 
-            services.AddHttpsRedirection(options =>
-            {
-                options.RedirectStatusCode = (int)HttpStatusCode.TemporaryRedirect;
-                options.HttpsPort = 5003;
-            });
+            services.AddAuthentication(
+         CertificateAuthenticationDefaults.AuthenticationScheme)
+         .AddCertificate();
 
             // JWT
             services
@@ -102,10 +91,6 @@ namespace backend
                 app.UseDeveloperExceptionPage();
                 app.UseSwagger();
                 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "backend v1"));
-            }
-            else
-            {
-                app.UseHsts();
             }
 
             app.UseHttpsRedirection();

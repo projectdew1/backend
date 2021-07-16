@@ -1,10 +1,11 @@
 {
   "version": 2,
-  "dgSpecHash": "C+zyreUK2WNLMxfr/Msi1Z3BalewwnKAzVgJteFxWH/hpeOqplD9+Y6O/nR7ONY1mrPOigOwjgEmSn57P14BFQ==",
+  "dgSpecHash": "h5wnPm/YWuc1zKOxOYT9t9gYbG1GukMgRBFPjf3MNZU5I96n9GOzavNkOQVAmdMMiG7Wt0F45QemqM+QwDgfmw==",
   "success": true,
   "projectFilePath": "D:\\backend-packing\\backend\\backend.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\Admin\\.nuget\\packages\\humanizer.core\\2.8.26\\humanizer.core.2.8.26.nupkg.sha512",
+    "C:\\Users\\Admin\\.nuget\\packages\\microsoft.aspnetcore.authentication.certificate\\5.0.8\\microsoft.aspnetcore.authentication.certificate.5.0.8.nupkg.sha512",
     "C:\\Users\\Admin\\.nuget\\packages\\microsoft.aspnetcore.authentication.jwtbearer\\5.0.3\\microsoft.aspnetcore.authentication.jwtbearer.5.0.3.nupkg.sha512",
     "C:\\Users\\Admin\\.nuget\\packages\\microsoft.csharp\\4.7.0\\microsoft.csharp.4.7.0.nupkg.sha512",
     "C:\\Users\\Admin\\.nuget\\packages\\microsoft.entityframeworkcore\\5.0.2\\microsoft.entityframeworkcore.5.0.2.nupkg.sha512",
