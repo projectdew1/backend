@@ -682,6 +682,42 @@ namespace backend.Controllers
                     });
                 }
 
+                if (seo.Trim() == "")
+                {
+                    return Ok(new
+                    {
+                        status = 200,
+                        message = "กรุณากรอกข้อมูล SEO !",
+                    });
+                }
+
+                if (machineName.Trim() == "")
+                {
+                    return Ok(new
+                    {
+                        status = 200,
+                        message = "กรุณากรอกข้อมูล ชื่อสินค้า !",
+                    });
+                }
+
+                if (machineModels.Trim() == "")
+                {
+                    return Ok(new
+                    {
+                        status = 200,
+                        message = "กรุณากรอกข้อมูล รหัสรุ่น !",
+                    });
+                }
+
+                if (explain.Trim() == "")
+                {
+                    return Ok(new
+                    {
+                        status = 200,
+                        message = "กรุณากรอกข้อมูล คำอธิบาย !",
+                    });
+                }
+
                 ///////////////////////////// machine ///////////////////////
                 var imageFileName = file.FormFile != null ? number + DateTime.Now.ToString("ddMMyy_HHmmss") + file.FormFile.FileName.Substring(file.FormFile.FileName.LastIndexOf(".")) : null;
 
