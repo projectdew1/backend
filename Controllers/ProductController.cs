@@ -938,7 +938,7 @@ namespace backend.Controllers
             {
                 // First อันเดียว
                 var items = table.Where(r => r.MachineId == id).First();
-                var itemsExplain = tableExplain.Where(r => r.MachineId == id).First();
+                var itemsExplain = tableExplain.Where(r => r.MachineId == id).ToList();
 
                 // ToList หลาย
                 var itemsDetail = tableDetail.Where(r => r.MachineId == id).ToList();
@@ -974,7 +974,15 @@ namespace backend.Controllers
 
                 // First อันเดียว
                 table.Remove(items);
-                tableExplain.Remove(itemsExplain);
+                // tableExplain.Remove(itemsExplain);
+
+                if (itemsExplain.Count() > 0)
+                {
+                    foreach (var item in tableExplain)
+                    {
+                        tableExplain.Remove(item);
+                    }
+                }
 
                 // ToList หลาย
                 if (itemsDetail.Count() > 0)
