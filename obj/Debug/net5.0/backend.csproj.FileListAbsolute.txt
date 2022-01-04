@@ -27,7 +27,6 @@ D:\backend-packing\backend\bin\Debug\net5.0\Swashbuckle.AspNetCore.SwaggerGen.dl
 D:\backend-packing\backend\bin\Debug\net5.0\Swashbuckle.AspNetCore.SwaggerUI.dll
 D:\backend-packing\backend\bin\Debug\net5.0\System.Diagnostics.DiagnosticSource.dll
 D:\backend-packing\backend\bin\Debug\net5.0\System.IdentityModel.Tokens.Jwt.dll
-D:\backend-packing\backend\obj\Debug\net5.0\backend.csprojAssemblyReference.cache
 D:\backend-packing\backend\obj\Debug\net5.0\backend.GeneratedMSBuildEditorConfig.editorconfig
 D:\backend-packing\backend\obj\Debug\net5.0\backend.AssemblyInfoInputs.cache
 D:\backend-packing\backend\obj\Debug\net5.0\backend.AssemblyInfo.cs
