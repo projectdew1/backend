@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Text;
 using backend.interfaces;
 using backend.Models;
 using Microsoft.AspNetCore.Authorization;
@@ -1586,6 +1587,32 @@ namespace backend.Controllers
                 });
             }
         }
+
+
+        [HttpGet("[action]")]
+        [AllowAnonymous]
+        public IActionResult get64base(string url)
+        {
+
+            WebProxy myProxy = new WebProxy();
+            HttpWebRequest req = (HttpWebRequest)WebRequest.Create(url);
+
+            HttpWebResponse response = (HttpWebResponse)req.GetResponse();
+
+            StringBuilder _sb = new StringBuilder();
+
+            Byte[] _byte = _service.GetImage(url);
+
+            _sb.Append(Convert.ToBase64String(_byte, 0, _byte.Length));
+            String base64 = string.Format(@"data:" + response.ContentType + @";base64, {0}", _sb.ToString());
+            response.Close();
+            return Ok(new
+            {
+                status = 200,
+                base64,
+            });
+        }
+
 
         [HttpPost("[action]")]
         [AllowAnonymous]

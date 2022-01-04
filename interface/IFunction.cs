@@ -23,5 +23,7 @@ namespace backend.interfaces
         string decoding(string toDecode);
 
         string covertLink(string link);
+
+        byte[] GetImage(string url);
     }
 }
