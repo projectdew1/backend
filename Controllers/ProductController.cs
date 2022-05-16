@@ -1184,11 +1184,34 @@ namespace backend.Controllers
                 _context.SaveChanges();
 
                 ////////// explain /////////
-                var itemsExplain = tableExplain.Where(r => r.MachineId == id).First();
-                itemsExplain.ExplainDetail = explain;
-                itemsExplain.EditDate = DateTime.Now;
-                itemsExplain.EditUser = user;
-                _context.SaveChanges();
+                var lengthExplain = tableExplain.Where(r => r.MachineId == id).ToArray().Length; ;
+                if (lengthExplain > 0 && explain != "")
+                {
+                    var itemsExplain = tableExplain.Where(r => r.MachineId == id).First();
+                    itemsExplain.ExplainDetail = explain;
+                    itemsExplain.EditDate = DateTime.Now;
+                    itemsExplain.EditUser = user;
+                    _context.SaveChanges();
+                }
+                else if (lengthExplain == 0 && explain != "")
+                {
+                    ///////////////////////////// machine Explain คำอธิบาย ///////////////////////
+
+                    var explainID = tableExplain.OrderByDescending(u => u.ExplainMachineId).FirstOrDefault();
+                    var numberExplain = _service.GenID(explainID != null ? explainID.ExplainMachineId : "", "X");
+
+                    tableExplain.Add(
+                        new Explaimmachine
+                        {
+                            MachineId = id,
+                            ExplainMachineId = numberExplain,
+                            ExplainDetail = explain,
+                            CreateDate = DateTime.Now,
+                            CreateUser = user,
+                        }
+                    );
+                    _context.SaveChanges();
+                }
 
                 ////////// remove /////////
                 // ToList หลาย

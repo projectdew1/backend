@@ -5,7 +5,6 @@ D:\backend-packing\backend\bin\Debug\net5.0\backend.deps.json
 D:\backend-packing\backend\bin\Debug\net5.0\backend.runtimeconfig.json
 D:\backend-packing\backend\bin\Debug\net5.0\backend.runtimeconfig.dev.json
 D:\backend-packing\backend\bin\Debug\net5.0\backend.dll
-D:\backend-packing\backend\bin\Debug\net5.0\ref\backend.dll
 D:\backend-packing\backend\bin\Debug\net5.0\backend.pdb
 D:\backend-packing\backend\bin\Debug\net5.0\Humanizer.dll
 D:\backend-packing\backend\bin\Debug\net5.0\Microsoft.AspNetCore.Authentication.JwtBearer.dll
@@ -34,7 +33,6 @@ D:\backend-packing\backend\obj\Debug\net5.0\backend.csproj.CoreCompileInputs.cac
 D:\backend-packing\backend\obj\Debug\net5.0\backend.MvcApplicationPartsAssemblyInfo.cs
 D:\backend-packing\backend\obj\Debug\net5.0\backend.MvcApplicationPartsAssemblyInfo.cache
 D:\backend-packing\backend\obj\Debug\net5.0\staticwebassets\backend.StaticWebAssets.Manifest.cache
-D:\backend-packing\backend\obj\Debug\net5.0\staticwebassets\backend.StaticWebAssets.xml
 D:\backend-packing\backend\obj\Debug\net5.0\scopedcss\bundle\backend.styles.css
 D:\backend-packing\backend\obj\Debug\net5.0\backend.RazorTargetAssemblyInfo.cache
 D:\backend-packing\backend\obj\Debug\net5.0\backend.csproj.CopyComplete
@@ -44,3 +42,5 @@ D:\backend-packing\backend\obj\Debug\net5.0\backend.pdb
 D:\backend-packing\backend\obj\Debug\net5.0\backend.genruntimeconfig.cache
 D:\backend-packing\backend\bin\Debug\net5.0\Microsoft.AspNetCore.Authentication.Certificate.dll
 D:\backend-packing\backend\obj\Debug\net5.0\backend.csproj.AssemblyReference.cache
+D:\backend-packing\backend\bin\Debug\net5.0\backend.StaticWebAssets.xml
+D:\backend-packing\backend\obj\Debug\net5.0\refint\backend.dll

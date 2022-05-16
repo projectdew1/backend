@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "mBQIlh7rkXPb/khYw0NMEd0i0C41w6gKDy/wO9D6FUf2xaDy5go5wL74ZZWm7M8tiWZyyQ7Ui2bNKmgqxDyrEQ==",
+  "dgSpecHash": "unputimy3pY3pF6irhf5zjY89n5r1bcYh/SOD0rTvgK70p2D34GoNRQxgTvhn7nwE70HBVcnqlwDrM0LSQ4fwA==",
   "success": true,
   "projectFilePath": "D:\\backend-packing\\backend\\backend.csproj",
   "expectedPackageFiles": [
@@ -39,7 +39,8 @@
     "C:\\Users\\Admin\\.nuget\\packages\\system.componentmodel.annotations\\5.0.0\\system.componentmodel.annotations.5.0.0.nupkg.sha512",
     "C:\\Users\\Admin\\.nuget\\packages\\system.diagnostics.diagnosticsource\\5.0.1\\system.diagnostics.diagnosticsource.5.0.1.nupkg.sha512",
     "C:\\Users\\Admin\\.nuget\\packages\\system.identitymodel.tokens.jwt\\6.7.1\\system.identitymodel.tokens.jwt.6.7.1.nupkg.sha512",
-    "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder\\system.security.cryptography.cng\\4.5.0\\system.security.cryptography.cng.4.5.0.nupkg.sha512"
+    "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder\\system.security.cryptography.cng\\4.5.0\\system.security.cryptography.cng.4.5.0.nupkg.sha512",
+    "C:\\Users\\Admin\\.nuget\\packages\\microsoft.netcore.app.host.win-x64\\5.0.14\\microsoft.netcore.app.host.win-x64.5.0.14.nupkg.sha512"
   ],
   "logs": []
 }
