@@ -17,23 +17,82 @@ namespace backend.Models
         {
         }
 
+        public virtual DbSet<Blog> Blogs { get; set; }
         public virtual DbSet<Category> Categories { get; set; }
         public virtual DbSet<Contact> Contacts { get; set; }
         public virtual DbSet<Detailmachine> Detailmachines { get; set; }
         public virtual DbSet<Detailtechmachine> Detailtechmachines { get; set; }
         public virtual DbSet<Explaimmachine> Explaimmachines { get; set; }
         public virtual DbSet<Explaintype> Explaintypes { get; set; }
+        public virtual DbSet<Imageblog> Imageblogs { get; set; }
         public virtual DbSet<Imagemachine> Imagemachines { get; set; }
+        public virtual DbSet<Imageportfolio> Imageportfolios { get; set; }
         public virtual DbSet<Imagetype> Imagetypes { get; set; }
         public virtual DbSet<Machine> Machines { get; set; }
         public virtual DbSet<Manualmachine> Manualmachines { get; set; }
+        public virtual DbSet<Photoall> Photoalls { get; set; }
         public virtual DbSet<Technically> Technicallies { get; set; }
         public virtual DbSet<Typemachine> Typemachines { get; set; }
         public virtual DbSet<User> Users { get; set; }
         public virtual DbSet<Videomachine> Videomachines { get; set; }
 
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            if (!optionsBuilder.IsConfigured)
+            {
+#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
+                optionsBuilder.UseMySql("server=localhost;database=packing;user=root;password=root1234", Microsoft.EntityFrameworkCore.ServerVersion.FromString("8.0.23-mysql"));
+            }
+        }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<Blog>(entity =>
+            {
+                entity.ToTable("blog");
+
+                entity.Property(e => e.BlogId)
+                    .HasColumnType("varchar(7)")
+                    .HasColumnName("blogID")
+                    .HasCharSet("utf8")
+                    .HasCollation("utf8_general_ci");
+
+                entity.Property(e => e.BlogSeo)
+                    .IsRequired()
+                    .HasColumnType("longtext")
+                    .HasColumnName("blogSeo")
+                    .HasCharSet("utf8")
+                    .HasCollation("utf8_general_ci");
+
+                entity.Property(e => e.Content)
+                    .IsRequired()
+                    .HasColumnType("longtext")
+                    .HasColumnName("content")
+                    .HasCharSet("utf8")
+                    .HasCollation("utf8_general_ci");
+
+                entity.Property(e => e.CreateDate).HasColumnType("datetime");
+
+                entity.Property(e => e.CreateUser)
+                    .HasColumnType("varchar(40)")
+                    .HasCharSet("utf8")
+                    .HasCollation("utf8_general_ci");
+
+                entity.Property(e => e.EditDate).HasColumnType("datetime");
+
+                entity.Property(e => e.EditUser)
+                    .HasColumnType("varchar(40)")
+                    .HasCharSet("utf8")
+                    .HasCollation("utf8_general_ci");
+
+                entity.Property(e => e.Title)
+                    .IsRequired()
+                    .HasColumnType("varchar(500)")
+                    .HasColumnName("title")
+                    .HasCharSet("utf8")
+                    .HasCollation("utf8_general_ci");
+            });
+
             modelBuilder.Entity<Category>(entity =>
             {
                 entity.ToTable("category");
@@ -319,6 +378,46 @@ namespace backend.Models
                     .HasConstraintName("xtypeID");
             });
 
+            modelBuilder.Entity<Imageblog>(entity =>
+            {
+                entity.HasKey(e => new { e.ImageId, e.BlogId })
+                    .HasName("PRIMARY")
+                    .HasAnnotation("MySql:IndexPrefixLength", new[] { 0, 0 });
+
+                entity.ToTable("imageblog");
+
+                entity.HasIndex(e => e.BlogId, "blogID_idx");
+
+                entity.Property(e => e.ImageId)
+                    .HasColumnType("varchar(10)")
+                    .HasColumnName("ImageID")
+                    .HasCharSet("utf8")
+                    .HasCollation("utf8_general_ci");
+
+                entity.Property(e => e.BlogId)
+                    .HasColumnType("varchar(7)")
+                    .HasColumnName("blogID")
+                    .HasCharSet("utf8")
+                    .HasCollation("utf8_general_ci");
+
+                entity.Property(e => e.FileName)
+                    .HasColumnType("varchar(30)")
+                    .HasColumnName("fileName")
+                    .HasCharSet("utf8")
+                    .HasCollation("utf8_general_ci");
+
+                entity.Property(e => e.Local)
+                    .HasColumnType("varchar(300)")
+                    .HasCharSet("utf8")
+                    .HasCollation("utf8_general_ci");
+
+                entity.HasOne(d => d.Blog)
+                    .WithMany(p => p.Imageblogs)
+                    .HasForeignKey(d => d.BlogId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("blogID");
+            });
+
             modelBuilder.Entity<Imagemachine>(entity =>
             {
                 entity.ToTable("imagemachine");
@@ -359,6 +458,38 @@ namespace backend.Models
                     .WithMany(p => p.Imagemachines)
                     .HasForeignKey(d => d.MachineId)
                     .HasConstraintName("machineID");
+            });
+
+            modelBuilder.Entity<Imageportfolio>(entity =>
+            {
+                entity.HasKey(e => e.ImageId)
+                    .HasName("PRIMARY");
+
+                entity.ToTable("imageportfolio");
+
+                entity.Property(e => e.ImageId)
+                    .HasColumnType("varchar(10)")
+                    .HasColumnName("ImageID")
+                    .HasCharSet("utf8")
+                    .HasCollation("utf8_general_ci");
+
+                entity.Property(e => e.FileName)
+                    .HasColumnType("varchar(30)")
+                    .HasColumnName("fileName")
+                    .HasCharSet("utf8")
+                    .HasCollation("utf8_general_ci");
+
+                entity.Property(e => e.Local)
+                    .HasColumnType("varchar(300)")
+                    .HasCharSet("utf8")
+                    .HasCollation("utf8_general_ci");
+
+                entity.Property(e => e.PortfolioId)
+                    .IsRequired()
+                    .HasColumnType("varchar(7)")
+                    .HasColumnName("portfolioID")
+                    .HasCharSet("utf8")
+                    .HasCollation("utf8_general_ci");
             });
 
             modelBuilder.Entity<Imagetype>(entity =>
@@ -538,6 +669,31 @@ namespace backend.Models
                     .WithMany(p => p.Manualmachines)
                     .HasForeignKey(d => d.MachineId)
                     .HasConstraintName("mmachineID");
+            });
+
+            modelBuilder.Entity<Photoall>(entity =>
+            {
+                entity.HasKey(e => e.IdPhoto)
+                    .HasName("PRIMARY");
+
+                entity.ToTable("photoall");
+
+                entity.Property(e => e.IdPhoto)
+                    .HasColumnType("varchar(10)")
+                    .HasColumnName("idPhoto")
+                    .HasCharSet("utf8")
+                    .HasCollation("utf8_general_ci");
+
+                entity.Property(e => e.FileName)
+                    .HasColumnType("varchar(30)")
+                    .HasColumnName("fileName")
+                    .HasCharSet("utf8")
+                    .HasCollation("utf8_general_ci");
+
+                entity.Property(e => e.Local)
+                    .HasColumnType("varchar(300)")
+                    .HasCharSet("utf8")
+                    .HasCollation("utf8_general_ci");
             });
 
             modelBuilder.Entity<Technically>(entity =>

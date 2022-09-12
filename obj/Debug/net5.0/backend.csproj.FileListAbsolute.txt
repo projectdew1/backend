@@ -42,5 +42,4 @@ D:\backend-packing\backend\obj\Debug\net5.0\backend.pdb
 D:\backend-packing\backend\obj\Debug\net5.0\backend.genruntimeconfig.cache
 D:\backend-packing\backend\bin\Debug\net5.0\Microsoft.AspNetCore.Authentication.Certificate.dll
 D:\backend-packing\backend\obj\Debug\net5.0\backend.csproj.AssemblyReference.cache
-D:\backend-packing\backend\bin\Debug\net5.0\backend.StaticWebAssets.xml
 D:\backend-packing\backend\obj\Debug\net5.0\refint\backend.dll
