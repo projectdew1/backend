@@ -43,6 +43,19 @@ namespace backend.Controllers
 
         }
 
+        public class UpdateMachineList
+        {
+            public IFormFile FormFile { get; set; }
+            public List<IFormFile> FormFileMulti { get; set; }
+            public List<TechnicalTtype> technical { get; set; }
+
+            public List<String> detail { get; set; }
+
+            public List<String> manual { get; set; }
+
+            public List<String> videos { get; set; }
+        }
+
         public class TechnicalTtype
         {
             public string tech { get; set; }
@@ -652,7 +665,7 @@ namespace backend.Controllers
 
         [HttpPost("[action]")]
         public IActionResult addMachine(string seo, string typeID, string machineName,
-        string machineModels, int price, int discount, bool soldout, string user, string explain, string detail, string manual, string videos, string technical, [FromForm] FileUploadList file
+        string machineModels, int price, int discount, bool soldout, string user, string explain, [FromForm] UpdateMachineList file
         )
         {
             var table = _context.Machines; // เครื่องจักร
@@ -769,10 +782,10 @@ namespace backend.Controllers
 
                 ///////////////////////////// machine Detail คุณสมบัติ List ///////////////////////               
 
-                if (detail != null)
+                if (file.detail != null)
                 {
-                    var list = detail.Split(new char[] { ',' }).ToList();
-                    foreach (var item in list)
+
+                    foreach (var item in file.detail)
                     {
 
                         var detailID = tableDetail.OrderByDescending(u => u.DetailMachineId).FirstOrDefault();
@@ -794,10 +807,10 @@ namespace backend.Controllers
 
                 ///////////////////////////// machine Manual คู่มือ List ///////////////////////               
 
-                if (manual != null)
+                if (file.manual != null)
                 {
-                    var listmanual = manual.Split(new char[] { ',' }).ToList();
-                    foreach (var item in listmanual)
+
+                    foreach (var item in file.manual)
                     {
                         var manualID = tableManual.OrderByDescending(u => u.ManualMachineId).FirstOrDefault();
                         var numberManual = _service.GenID(manualID != null ? manualID.ManualMachineId : "", "N");
@@ -818,10 +831,10 @@ namespace backend.Controllers
 
                 ///////////////////////////// machine Videos วีดีโอ List ///////////////////////               
 
-                if (videos != null)
+                if (file.videos != null)
                 {
-                    var listvideos = videos.Split(new char[] { ',' }).ToList();
-                    foreach (var item in listvideos)
+
+                    foreach (var item in file.videos)
                     {
                         var videosID = tableVideos.OrderByDescending(u => u.VideoMachineId).FirstOrDefault();
                         var numberVideos = _service.GenID(videosID != null ? videosID.VideoMachineId : "", "V");
@@ -840,20 +853,10 @@ namespace backend.Controllers
 
                 ///////////////////////////// machine Technical คุณสมบัติทางเทคนิค List /////////////////////// 
 
-                if (technical != null)
+                if (file.technical != null)
                 {
-                    List<TechnicalTtype> parts = new List<TechnicalTtype>();
-                    var stepA = technical.Split(new char[] { ',' }).ToList();
-                    for (int i = 0; i < stepA.ToArray().Length; i++)
-                    {
-                        var item = stepA[i];
-                        var stepB = item.Split(new char[] { '-' }).ToList();
-                        var tech = stepB[0].ToString().Substring(5, stepB[0].Length - 5);
-                        var name = stepB[1].ToString().Substring(5, stepB[1].Length - 5);
-                        parts.Add(new TechnicalTtype() { tech = tech, name = name });
-                    }
 
-                    foreach (var item in parts)
+                    foreach (var item in file.technical)
                     {
                         var technicalID = tableDetailTech.OrderByDescending(u => u.DetailTechMachineId).FirstOrDefault();
                         var numberTechnical = _service.GenID(technicalID != null ? technicalID.DetailTechMachineId : "", "D");
@@ -1114,10 +1117,12 @@ namespace backend.Controllers
 
 
         [HttpPost("[action]")]
+        // [AllowAnonymous]
         public IActionResult updateMachine(string seo, string typeID, string machineName,
-                string machineModels, int price, int discount, bool soldout, string user, string explain, string detail, string manual, string videos, string technical, string id, [FromForm] FileUploadList file
+                string machineModels, int price, int discount, bool soldout, string user, string explain, string id, [FromForm] UpdateMachineList file
                 )
         {
+
             var table = _context.Machines; // เครื่องจักร อันเดียว First  = รูปภาพ อันเดียว
             var tableDetail = _context.Detailmachines; // คุณสมบัติ
             var tableDetailTech = _context.Detailtechmachines; // คุณสมบัติทางเทคนิค
@@ -1138,6 +1143,42 @@ namespace backend.Controllers
                     {
                         status = 200,
                         message = "ชื่อสินค้าผลิตภัณฑ์ซ้ำ !",
+                    });
+                }
+
+                if (seo.Trim() == "")
+                {
+                    return Ok(new
+                    {
+                        status = 200,
+                        message = "กรุณากรอกข้อมูล SEO !",
+                    });
+                }
+
+                if (machineName.Trim() == "")
+                {
+                    return Ok(new
+                    {
+                        status = 200,
+                        message = "กรุณากรอกข้อมูล ชื่อสินค้า !",
+                    });
+                }
+
+                if (machineModels.Trim() == "")
+                {
+                    return Ok(new
+                    {
+                        status = 200,
+                        message = "กรุณากรอกข้อมูล รหัสรุ่น !",
+                    });
+                }
+
+                if (explain.Trim() == "")
+                {
+                    return Ok(new
+                    {
+                        status = 200,
+                        message = "กรุณากรอกข้อมูล คำอธิบาย !",
                     });
                 }
 
@@ -1284,10 +1325,10 @@ namespace backend.Controllers
 
                 ///////////////////////////// machine Detail คุณสมบัติ List ///////////////////////               
 
-                if (detail != null)
+                if (file.detail != null)
                 {
-                    var list = detail.Split(new char[] { ',' }).ToList();
-                    foreach (var item in list)
+
+                    foreach (var item in file.detail)
                     {
 
                         var detailID = tableDetail.OrderByDescending(u => u.DetailMachineId).FirstOrDefault();
@@ -1309,10 +1350,10 @@ namespace backend.Controllers
 
                 ///////////////////////////// machine Manual คู่มือ List ///////////////////////               
 
-                if (manual != null)
+                if (file.manual != null)
                 {
-                    var listmanual = manual.Split(new char[] { ',' }).ToList();
-                    foreach (var item in listmanual)
+
+                    foreach (var item in file.manual)
                     {
                         var manualID = tableManual.OrderByDescending(u => u.ManualMachineId).FirstOrDefault();
                         var numberManual = _service.GenID(manualID != null ? manualID.ManualMachineId : "", "N");
@@ -1333,10 +1374,10 @@ namespace backend.Controllers
 
                 ///////////////////////////// machine Videos วีดีโอ List ///////////////////////               
 
-                if (videos != null)
+                if (file.videos != null)
                 {
-                    var listvideos = videos.Split(new char[] { ',' }).ToList();
-                    foreach (var item in listvideos)
+
+                    foreach (var item in file.videos)
                     {
                         var videosID = tableVideos.OrderByDescending(u => u.VideoMachineId).FirstOrDefault();
                         var numberVideos = _service.GenID(videosID != null ? videosID.VideoMachineId : "", "V");
@@ -1355,20 +1396,9 @@ namespace backend.Controllers
 
                 ///////////////////////////// machine Technical คุณสมบัติทางเทคนิค List /////////////////////// 
 
-                if (technical != null)
+                if (file.technical != null)
                 {
-                    List<TechnicalTtype> parts = new List<TechnicalTtype>();
-                    var stepA = technical.Split(new char[] { ',' }).ToList();
-                    for (int i = 0; i < stepA.ToArray().Length; i++)
-                    {
-                        var item = stepA[i];
-                        var stepB = item.Split(new char[] { '-' }).ToList();
-                        var tech = stepB[0].ToString().Substring(5, stepB[0].Length - 5);
-                        var name = stepB[1].ToString().Substring(5, stepB[1].Length - 5);
-                        parts.Add(new TechnicalTtype() { tech = tech, name = name });
-                    }
-
-                    foreach (var item in parts)
+                    foreach (var item in file.technical)
                     {
                         var technicalID = tableDetailTech.OrderByDescending(u => u.DetailTechMachineId).FirstOrDefault();
                         var numberTechnical = _service.GenID(technicalID != null ? technicalID.DetailTechMachineId : "", "D");

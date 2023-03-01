@@ -43,3 +43,8 @@ D:\backend-packing\backend\obj\Debug\net5.0\backend.genruntimeconfig.cache
 D:\backend-packing\backend\bin\Debug\net5.0\Microsoft.AspNetCore.Authentication.Certificate.dll
 D:\backend-packing\backend\obj\Debug\net5.0\backend.csproj.AssemblyReference.cache
 D:\backend-packing\backend\obj\Debug\net5.0\refint\backend.dll
+D:\backend-packing\backend\obj\Debug\net5.0\staticwebassets\backend.StaticWebAssets.Pack.cache
+D:\backend-packing\backend\obj\Debug\net5.0\staticwebassets\msbuild.backend.Microsoft.AspNetCore.StaticWebAssets.props
+D:\backend-packing\backend\obj\Debug\net5.0\staticwebassets\msbuild.build.backend.props
+D:\backend-packing\backend\obj\Debug\net5.0\staticwebassets\msbuild.buildMultiTargeting.backend.props
+D:\backend-packing\backend\obj\Debug\net5.0\staticwebassets\msbuild.buildTransitive.backend.props
