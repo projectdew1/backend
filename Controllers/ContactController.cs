@@ -1,6 +1,8 @@
 using System;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
+using System.Net.Http.Headers;
 using backend.interfaces;
 using backend.Models;
 using Microsoft.AspNetCore.Authorization;
@@ -51,6 +53,27 @@ namespace backend.Controllers
                     }
                 );
                 _context.SaveChanges();
+                string token = "ilhfuFSGnE1ABoqjVZEMpDcowA8AEr0KOgloOdjtur3";
+                string url = "https://notify-api.line.me/api/notify";
+                string stickerId = "51626518";
+                string stickerPackageId = "11538";
+                using (var client = new HttpClient())
+                {
+                    client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+                    using (var line = new MultipartFormDataContent())
+                    {
+                        //////sticker
+                        line.Add(new StringContent(stickerId), "stickerId");
+                        line.Add(new StringContent(stickerPackageId), "stickerPackageId");
+                        //////message
+                        line.Add(new StringContent("ผู้ติดต่อจากเว็บไซต์\nชื่อผู้ติดต่อ:\n" + name + "\nE-mail:\n" + mail + "\nเบอร์โทรติดต่อ:\n" + tel + "\nหัวข้อ:\n" + title + "\nรายละเอียด:\n" + detail), "message");
+                        //post to line api
+                        var response = client.PostAsync(url, line).Result;
+                        var content = response.Content.ReadAsStringAsync().Result;
+
+                    }
+                }
+
                 return Ok(new
                 {
                     status = 200,
