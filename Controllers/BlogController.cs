@@ -184,6 +184,7 @@ namespace backend.Controllers
                     r.CreateUser,
                     r.EditDate,
                     r.EditUser,
+                    enID = _service.encoding(r.BlogId),
                     Local = tableImage.Where(row => row.BlogId == r.BlogId).Select(i => i.Local).First(),
                     FileName = tableImage.Where(row => row.BlogId == r.BlogId).Select(i => i.FileName).First(),
                     ImageId = tableImage.Where(row => row.BlogId == r.BlogId).Select(i => i.ImageId).First(),
@@ -212,11 +213,12 @@ namespace backend.Controllers
         {
             var table = _context.Blogs;
             var tableImage = _context.Imageblogs;
+            var deID = _service.decoding(id);
 
 
             try
             {
-                var items = table.Where(r => r.BlogId == id).Select(r => new
+                var items = table.Where(r => r.BlogId == deID).Select(r => new
                 {
                     r.BlogId,
                     r.Title,
