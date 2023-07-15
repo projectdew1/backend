@@ -164,6 +164,40 @@ namespace backend.Controllers
             }
         }
 
+        [HttpGet("[action]")]
+        [AllowAnonymous]
+        public IActionResult listBlogid()
+        {
+            var table = _context.Blogs;
+            var tableImage = _context.Imageblogs;
+
+
+            try
+            {
+                var items = table.OrderByDescending(r => r.CreateDate).Select(r => new
+                {
+                    enID = _service.encoding(r.BlogId),
+
+                }).ToList();
+
+                return Ok(new
+                {
+                    status = 200,
+                    message = "success",
+                    items,
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(Convert.ToInt32(HttpStatusCode.InternalServerError), new
+                {
+                    status = HttpStatusCode.InternalServerError,
+                    message = ex.Message
+                });
+            }
+        }
+
+
         [HttpPost("[action]")]
         // [AllowAnonymous]
         public IActionResult contentBlog()
@@ -372,18 +406,19 @@ namespace backend.Controllers
            [FromForm] FileUpload file
            )
         {
+            var deID = _service.decoding(id);
             var tableBlogs = _context.Blogs;
             var tableImages = _context.Imageblogs;
             try
             {
-                var imageFileName = file.FormFile != null ? id + DateTime.Now.ToString("ddMMyy_HHmmss") + file.FormFile.FileName.Substring(file.FormFile.FileName.LastIndexOf(".")) : null;
-                var checkImage = tableImages.Where(r => r.BlogId == id).ToArray().Length;
+                var imageFileName = file.FormFile != null ? deID + DateTime.Now.ToString("ddMMyy_HHmmss") + file.FormFile.FileName.Substring(file.FormFile.FileName.LastIndexOf(".")) : null;
+                var checkImage = tableImages.Where(r => r.BlogId == deID).ToArray().Length;
 
 
 
                 if (checkImage > 0 && file.FormFile != null)
                 {
-                    var itemsImage = tableImages.Where(r => r.BlogId == id).First();
+                    var itemsImage = tableImages.Where(r => r.BlogId == deID).First();
                     string path_delete = Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot/blog", itemsImage.FileName);
                     if (System.IO.File.Exists(path_delete))
                     {
@@ -411,14 +446,14 @@ namespace backend.Controllers
                     //content blog images
                     var itemImage = tableImages.Add(new Imageblog
                     {
-                        BlogId = id,
+                        BlogId = deID,
                         ImageId = numberImages,
                         FileName = imageFileName,
                         Local = "/blog/" + imageFileName
                     });
                 }
 
-                var items = tableBlogs.Where(r => r.BlogId == id).First();
+                var items = tableBlogs.Where(r => r.BlogId == deID).First();
                 items.Title = title;
                 items.BlogSeo = seo;
                 items.Content = content;
