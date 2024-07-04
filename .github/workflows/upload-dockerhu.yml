@@ -24,7 +24,7 @@ jobs:
 
     - name: Build and push Docker image
       env: 
-       IMAGE_TAG: minibosss/backpack:v1
+       IMAGE_TAG: minibosss/backpack:latest
       run: |
         docker build -t $IMAGE_TAG .
         docker push $IMAGE_TAG
