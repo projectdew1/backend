@@ -1,4 +1,4 @@
-name: Docker Image CI
+name: Docker Hub and Deploy
 
 on:
   push:
@@ -28,3 +28,13 @@ jobs:
       run: |
         docker build -t $IMAGE_TAG .
         docker push $IMAGE_TAG
+    - name: executing remote ssh commands using password
+      uses: appleboy/ssh-action@v1.0.3
+      with:
+        host: ${{ secrets.SSH_HOST }}
+        username: ${{ secrets.SSH_USERNAME }}
+        password: ${{ secrets.SSH_PASSWORD }}
+        port: ${{ secrets.SSH_PORT }}
+        script: |
+          whoami
+          ls -al
