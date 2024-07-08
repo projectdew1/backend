@@ -40,90 +40,102 @@ namespace backend.Controllers
 
         public class FileUploadList
         {
+            public IFormFile FormFile { get; set; }
             public List<IFormFile> FormFileMulti { get; set; }
 
         }
 
         [HttpPost("[action]")]
-        // [AllowAnonymous]
-        public IActionResult addPhoto([FromForm] FileUploadList file)
+        [AllowAnonymous]
+        public IActionResult getNews(int pageNumber = 1, int pageSize = 10)
         {
-            var tableImages = _context.Photoalls;
+            var table = _context.News;
+   var tableType = _context.Typenews;
             try
             {
-                if (file.FormFileMulti != null)
+                var totalItems = table.Count();
+                var items = table.OrderBy(r => r.NewsId)
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize).Select(r => new
                 {
+                    id = _service.encoding(r.NewsId),
+                    r.Title,
+                    r.Content,
+                    r.TypeNewsId,
+                    TypeNews = tableType.Where(row => row.TypeNewsId == r.TypeNewsId).Select(e => e.TypeNews1).First(),
+                    r.CreateDate,
+                    r.CreateUser,
+                    r.EditDate,
+                    r.EditUser,
+                    r.LocalImage,
+                    r.FileImage,
+                })
+                .ToList();
 
-                    foreach (var item in file.FormFileMulti)
+                return Ok(new
+                {
+                    status = 200,
+                    message = "success",
+                    items,
+                    TotalItems = totalItems,
+                    TotalPages = (int)Math.Ceiling(totalItems / (double)pageSize),
+                    PageNumber = pageNumber,
+                    PageSize = pageSize,
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(Convert.ToInt32(HttpStatusCode.InternalServerError), new
+                {
+                    status = HttpStatusCode.InternalServerError,
+                    message = ex.Message
+                });
+            }
+        }
+
+        [HttpDelete("[action]")]
+        public IActionResult deleteNews(string id)
+        {
+            var table = _context.News;
+            var tableImages = _context.Imagenews;
+
+            var items = table.Where(r => r.NewsId == id).First();
+            var itemsImages = tableImages.Where(r => r.NewsId == id).ToList();
+
+            try
+            {
+                if (items.FileImage != null)
+                {
+                    var path = Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot/blog", items.FileImage);
+                    if (System.IO.File.Exists(path))
                     {
-                        var imageID = tableImages.OrderByDescending(u => u.IdPhoto).FirstOrDefault();
-                        var numberImage = _service.GenID(imageID != null ? imageID.IdPhoto : "", "A");
+                        System.IO.File.Delete(path);
+                    }
+                }
 
-                        var imageFileMultiName = numberImage + DateTime.Now.ToString("ddMMyy_HHmmss") + item.FileName.Substring(item.FileName.LastIndexOf("."));
-
-                        string path = Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot/photo", imageFileMultiName);
-                        using (Stream stream = new FileStream(path, FileMode.Create))
+                if (itemsImages.Count() > 0)
+                {
+                    foreach (var item in itemsImages)
+                    {
+                        var path = Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot/blog", item.FileName);
+                        if (System.IO.File.Exists(path))
                         {
-                            item.CopyTo(stream);
+                            System.IO.File.Delete(path);
                         }
 
-                        tableImages.Add(
-                           new Photoall
-                           {
-                               IdPhoto = numberImage,
-                               FileName = imageFileMultiName,
-                               Local = "/photo/" + imageFileMultiName
-                           }
-                       );
-                        _context.SaveChanges();
+                        tableImages.Remove(item);
                     }
+
+
                 }
 
-
-                return Ok(new
-                {
-                    status = 200,
-                    message = "success",
-
-                });
-
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(Convert.ToInt32(HttpStatusCode.InternalServerError), new
-                {
-                    status = HttpStatusCode.InternalServerError,
-                    message = ex.Message
-                });
-            }
-        }
-
-        [HttpDelete("[action]")]
-        // [AllowAnonymous]
-        public IActionResult deletePhoto(string id)
-        {
-            var tableImages = _context.Photoalls;
-            try
-            {
-                var items = tableImages.Where(r => r.IdPhoto == id).First();
-
-                if (items.FileName != null)
-                {
-                    var path = Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot/photo", items.FileName);
-                    if (System.IO.File.Exists(path))
-                    {
-                        System.IO.File.Delete(path);
-                    }
-                }
-                tableImages.Remove(items);
+                table.Remove(items);
                 _context.SaveChanges();
 
-
                 return Ok(new
                 {
                     status = 200,
                     message = "success",
-
                 });
 
             }
@@ -138,133 +150,27 @@ namespace backend.Controllers
         }
 
         [HttpPost("[action]")]
-        // [AllowAnonymous]
-        public IActionResult photoall()
+        public IActionResult getNewsAll()
         {
-            var table = _context.Photoalls;
+            var table = _context.News;
+            var tableType = _context.Typenews;
 
             try
             {
-                var items = table.OrderByDescending(r => r.IdPhoto).ToList();
-
-                return Ok(new
+                var items = table.OrderBy(r => r.NewsId).Select(r => new
                 {
-                    status = 200,
-                    message = "success",
-                    items,
-                });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(Convert.ToInt32(HttpStatusCode.InternalServerError), new
-                {
-                    status = HttpStatusCode.InternalServerError,
-                    message = ex.Message
-                });
-            }
-        }
-
-        [HttpGet("[action]")]
-        [AllowAnonymous]
-        public IActionResult listBlogid()
-        {
-            var table = _context.Blogs;
-            var tableImage = _context.Imageblogs;
-
-
-            try
-            {
-                var items = table.OrderByDescending(r => r.CreateDate).Select(r => new
-                {
-                    enID = _service.encoding(r.BlogId),
-
-                }).ToList();
-
-                return Ok(new
-                {
-                    status = 200,
-                    message = "success",
-                    items,
-                });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(Convert.ToInt32(HttpStatusCode.InternalServerError), new
-                {
-                    status = HttpStatusCode.InternalServerError,
-                    message = ex.Message
-                });
-            }
-        }
-
-
-        [HttpPost("[action]")]
-        // [AllowAnonymous]
-        public IActionResult contentBlog()
-        {
-            var table = _context.Blogs;
-            var tableImage = _context.Imageblogs;
-
-
-            try
-            {
-                var items = table.OrderByDescending(r => r.CreateDate).Select(r => new
-                {
-                    r.BlogId,
+                    r.NewsId,
+                    id = _service.encoding(r.NewsId),
                     r.Title,
-                    r.BlogSeo,
-                    // r.Content,
-                    r.CreateDate,
-                    r.CreateUser,
-                    r.EditDate,
-                    r.EditUser,
-                    enID = _service.encoding(r.BlogId),
-                    Local = tableImage.Where(row => row.BlogId == r.BlogId).Select(i => i.Local).First(),
-                    FileName = tableImage.Where(row => row.BlogId == r.BlogId).Select(i => i.FileName).First(),
-                    ImageId = tableImage.Where(row => row.BlogId == r.BlogId).Select(i => i.ImageId).First(),
-                }).ToList();
-
-                return Ok(new
-                {
-                    status = 200,
-                    message = "success",
-                    items,
-                });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(Convert.ToInt32(HttpStatusCode.InternalServerError), new
-                {
-                    status = HttpStatusCode.InternalServerError,
-                    message = ex.Message
-                });
-            }
-        }
-
-        [HttpPost("[action]")]
-        // [AllowAnonymous]
-        public IActionResult idBlog(string id)
-        {
-            var table = _context.Blogs;
-            var tableImage = _context.Imageblogs;
-            var deID = _service.decoding(id);
-
-
-            try
-            {
-                var items = table.Where(r => r.BlogId == deID).Select(r => new
-                {
-                    r.BlogId,
-                    r.Title,
-                    r.BlogSeo,
                     r.Content,
+                    r.TypeNewsId,
+                    TypeNews = tableType.Where(row => row.TypeNewsId == r.TypeNewsId).Select(e => e.TypeNews1).First(),
                     r.CreateDate,
                     r.CreateUser,
                     r.EditDate,
                     r.EditUser,
-                    Local = tableImage.Where(row => row.BlogId == r.BlogId).Select(i => i.Local).First(),
-                    FileName = tableImage.Where(row => row.BlogId == r.BlogId).Select(i => i.FileName).First(),
-                    ImageId = tableImage.Where(row => row.BlogId == r.BlogId).Select(i => i.ImageId).First(),
+                    r.LocalImage,
+                    r.FileImage,
                 }).ToList();
 
                 return Ok(new
@@ -282,68 +188,72 @@ namespace backend.Controllers
                     message = ex.Message
                 });
             }
-        }
 
-
-        [HttpDelete("[action]")]
-        // [AllowAnonymous]
-        public IActionResult deleteBlog(string id)
-        {
-            var tableBlogs = _context.Blogs;
-            var tableImages = _context.Imageblogs;
-            try
-            {
-                var itemsImages = tableImages.Where(r => r.BlogId == id).First();
-                var items = tableBlogs.Where(r => r.BlogId == id).First();
-                if (itemsImages.FileName != null)
-                {
-                    var path = Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot/blog", itemsImages.FileName);
-                    if (System.IO.File.Exists(path))
-                    {
-                        System.IO.File.Delete(path);
-                    }
-                }
-                tableImages.Remove(itemsImages);
-                tableBlogs.Remove(items);
-                _context.SaveChanges();
-
-
-                return Ok(new
-                {
-                    status = 200,
-                    message = "success",
-
-                });
-
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(Convert.ToInt32(HttpStatusCode.InternalServerError), new
-                {
-                    status = HttpStatusCode.InternalServerError,
-                    message = ex.Message
-                });
-            }
         }
 
         [HttpPost("[action]")]
-        // [AllowAnonymous]
-        public IActionResult addBlog(
-            string seo,
-            string user,
-            string title,
-            string content,
-            [FromForm] FileUpload file
-            )
+        public IActionResult addNews(string seo, string typeNewsId, string title, string content, string user, [FromForm] FileUploadList file)
         {
-            var tableBlogs = _context.Blogs;
-            var tableImages = _context.Imageblogs;
+            var table = _context.News;
+            var tableType = _context.Typenews;
+            var tableImages = _context.Imagenews;
             try
             {
-                var id = tableBlogs.OrderByDescending(u => u.BlogId).FirstOrDefault();
-                var number = _service.GenID(id != null ? id.BlogId : "", "B");
+                if (seo.Trim() == "")
+                {
+                    return Ok(new
+                    {
+                        status = 200,
+                        message = "กรุณากรอกข้อมูล SEO !",
+                    });
+                }
+
+                if (title.Trim() == "")
+                {
+                    return Ok(new
+                    {
+                        status = 200,
+                        message = "กรุณากรอกข้อมูลหัวข้อ !",
+                    });
+                }
+
+                if (content.Trim() == "")
+                {
+                    return Ok(new
+                    {
+                        status = 200,
+                        message = "กรุณากรอกข้อมูลเนื้อหา !",
+                    });
+                }
+
+                if (typeNewsId.Trim() == "")
+                {
+                    return Ok(new
+                    {
+                        status = 200,
+                        message = "กรุณากรอกข้อมูลประเภท !",
+                    });
+                }
+                var newsID = table.OrderByDescending(u => u.NewsId).FirstOrDefault();
+
+                var number = _service.GenID(newsID != null ? newsID.NewsId : "", "N");
 
                 var imageFileName = file.FormFile != null ? number + DateTime.Now.ToString("ddMMyy_HHmmss") + file.FormFile.FileName.Substring(file.FormFile.FileName.LastIndexOf(".")) : null;
+
+                table.Add(
+                   new News
+                   {
+                       NewsId = number,
+                       NewsSeo = seo,
+                       Title = title,
+                       Content = content,
+                       TypeNewsId = typeNewsId,
+                       CreateDate = DateTime.Now,
+                       CreateUser = user,
+                       FileImage = imageFileName,
+                       LocalImage = file.FormFile != null ? "/blog/" + imageFileName : null
+                   }
+               );
 
                 if (file.FormFile != null)
                 {
@@ -352,38 +262,45 @@ namespace backend.Controllers
                     {
                         file.FormFile.CopyTo(stream);
                     }
-
-                    var idImages = tableImages.OrderByDescending(u => u.ImageId).FirstOrDefault();
-                    var numberImages = _service.GenID(idImages != null ? idImages.ImageId : "", "C");
-                    //content blog images
-                    var itemsImage = tableImages.Add(new Imageblog
-                    {
-                        BlogId = number,
-                        ImageId = numberImages,
-                        FileName = imageFileName,
-                        Local = "/blog/" + imageFileName
-                    });
                 }
 
-                var items = tableBlogs.Add(
-                       new Blog
-                       {
-                           BlogId = number,
-                           Title = title,
-                           Content = content,
-                           BlogSeo = seo,
-                           CreateDate = DateTime.Now,
-                           CreateUser = user,
-                       }
-                   );
+
+                if (file.FormFileMulti != null)
+                {
+
+                    foreach (var item in file.FormFileMulti)
+                    {
+                        var imageID = tableImages.OrderByDescending(u => u.ImagenewsId).FirstOrDefault();
+                        var numberImage = _service.GenID(imageID != null ? imageID.ImagenewsId : "", "D");
+
+                        var imageFileMultiName = numberImage + DateTime.Now.ToString("ddMMyy_HHmmss") + item.FileName.Substring(item.FileName.LastIndexOf("."));
+
+                        string path = Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot/blog", imageFileMultiName);
+                        using (Stream stream = new FileStream(path, FileMode.Create))
+                        {
+                            item.CopyTo(stream);
+                        }
+
+                        tableImages.Add(
+                           new Imagenews
+                           {
+                               NewsId = number,
+                               ImagenewsId = numberImage,
+                               FileName = imageFileMultiName,
+                               Local = "/blog/" + imageFileMultiName
+                           }
+                       );
+
+                    }
+                }
+
                 _context.SaveChanges();
+
                 return Ok(new
                 {
                     status = 200,
                     message = "success",
-
                 });
-
             }
             catch (Exception ex)
             {
@@ -396,30 +313,58 @@ namespace backend.Controllers
         }
 
         [HttpPut("[action]")]
-        // [AllowAnonymous]
-        public IActionResult updateBlog(
-           string id,
-           string seo,
-           string user,
-           string title,
-           string content,
-           [FromForm] FileUpload file
-           )
+        public IActionResult updateNews(string id, string seo, string typeNewsId, string title, string content, string user, [FromForm] FileUploadList file)
         {
-            var deID = _service.decoding(id);
-            var tableBlogs = _context.Blogs;
-            var tableImages = _context.Imageblogs;
+            var table = _context.News;
+            var tableType = _context.Typenews;
+            var tableImages = _context.Imagenews;
+
             try
             {
-                var imageFileName = file.FormFile != null ? deID + DateTime.Now.ToString("ddMMyy_HHmmss") + file.FormFile.FileName.Substring(file.FormFile.FileName.LastIndexOf(".")) : null;
-                var checkImage = tableImages.Where(r => r.BlogId == deID).ToArray().Length;
+                var items = table.Where(r => r.NewsId == id).First();
+                var itemsImages = tableImages.Where(r => r.NewsId == id).ToList();
 
-
-
-                if (checkImage > 0 && file.FormFile != null)
+                if (seo.Trim() == "")
                 {
-                    var itemsImage = tableImages.Where(r => r.BlogId == deID).First();
-                    string path_delete = Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot/blog", itemsImage.FileName);
+                    return Ok(new
+                    {
+                        status = 200,
+                        message = "กรุณากรอกข้อมูล SEO !",
+                    });
+                }
+
+                if (title.Trim() == "")
+                {
+                    return Ok(new
+                    {
+                        status = 200,
+                        message = "กรุณากรอกข้อมูลหัวข้อ !",
+                    });
+                }
+
+                if (content.Trim() == "")
+                {
+                    return Ok(new
+                    {
+                        status = 200,
+                        message = "กรุณากรอกข้อมูลเนื้อหา !",
+                    });
+                }
+
+                if (typeNewsId.Trim() == "")
+                {
+                    return Ok(new
+                    {
+                        status = 200,
+                        message = "กรุณากรอกข้อมูลประเภท !",
+                    });
+                }
+
+                var imageFileName = file.FormFile != null ? id + DateTime.Now.ToString("ddMMyy_HHmmss") + file.FormFile.FileName.Substring(file.FormFile.FileName.LastIndexOf(".")) : null;
+
+                if (items.FileImage != null && file.FormFile != null)
+                {
+                    string path_delete = Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot/blog", items.FileImage);
                     if (System.IO.File.Exists(path_delete))
                     {
                         System.IO.File.Delete(path_delete);
@@ -429,45 +374,121 @@ namespace backend.Controllers
                     using (Stream stream = new FileStream(path, FileMode.Create))
                     {
                         file.FormFile.CopyTo(stream);
-                        itemsImage.FileName = imageFileName;
-                        itemsImage.Local = "/blog/" + imageFileName;
+                        items.FileImage = imageFileName;
+                        items.LocalImage = "/blog/" + imageFileName;
                     }
                 }
-                else if (checkImage == 0 && file.FormFile != null)
+                else if (items.FileImage == null && file.FormFile != null)
                 {
                     string path = Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot/blog", imageFileName);
                     using (Stream stream = new FileStream(path, FileMode.Create))
                     {
                         file.FormFile.CopyTo(stream);
+                        items.FileImage = imageFileName;
+                        items.LocalImage = "/blog/" + imageFileName;
                     }
-
-                    var idImages = tableImages.OrderByDescending(u => u.ImageId).FirstOrDefault();
-                    var numberImages = _service.GenID(idImages != null ? idImages.ImageId : "", "C");
-                    //content blog images
-                    var itemImage = tableImages.Add(new Imageblog
-                    {
-                        BlogId = deID,
-                        ImageId = numberImages,
-                        FileName = imageFileName,
-                        Local = "/blog/" + imageFileName
-                    });
                 }
 
-                var items = tableBlogs.Where(r => r.BlogId == deID).First();
+                items.NewsSeo = seo;
                 items.Title = title;
-                items.BlogSeo = seo;
                 items.Content = content;
+                items.TypeNewsId = typeNewsId;
                 items.EditDate = DateTime.Now;
                 items.EditUser = user;
+                _context.SaveChanges();
 
+                /// image
+                if (itemsImages.Count() > 0)
+                {
+                    foreach (var item in itemsImages)
+                    {
+                        var path = Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot/blog", item.FileName);
+                        if (System.IO.File.Exists(path))
+                        {
+                            System.IO.File.Delete(path);
+                        }
+                        tableImages.Remove(item);
+                    }
+                    _context.SaveChanges();
+                }
+
+                if (file.FormFileMulti != null)
+                {
+
+                    foreach (var item in file.FormFileMulti)
+                    {
+                        var imageID = tableImages.OrderByDescending(u => u.ImagenewsId).FirstOrDefault();
+                        var numberImage = _service.GenID(imageID != null ? imageID.ImagenewsId : "", "D");
+
+                        var imageFileMultiName = numberImage + DateTime.Now.ToString("ddMMyy_HHmmss") + item.FileName.Substring(item.FileName.LastIndexOf("."));
+
+                        string path = Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot/blog", imageFileMultiName);
+                        using (Stream stream = new FileStream(path, FileMode.Create))
+                        {
+                            item.CopyTo(stream);
+                        }
+
+                        tableImages.Add(
+                           new Imagenews
+                           {
+                               NewsId = id,
+                               ImagenewsId = numberImage,
+                               FileName = imageFileMultiName,
+                               Local = "/blog/" + imageFileMultiName
+                           }
+                       );
+
+                    }
+                }
                 _context.SaveChanges();
                 return Ok(new
                 {
                     status = 200,
                     message = "success",
-
                 });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(Convert.ToInt32(HttpStatusCode.InternalServerError), new
+                {
+                    status = HttpStatusCode.InternalServerError,
+                    message = ex.Message
+                });
+            }
+        }
 
+        [HttpPost("[action]")]
+        [AllowAnonymous]
+        public IActionResult findNews(string id)
+        {
+            var decodeID = _service.decoding(id);
+            var table = _context.News;
+            var tableType = _context.Typenews;
+            var tableImage = _context.Imagenews;
+
+            try
+            {
+                var items = table.Where(r => r.NewsId == decodeID)
+                .Select(r =>
+                new
+                {
+                    r.Title,
+                    r.Content,
+                    r.TypeNewsId,
+                    TypeNews = tableType.Where(row => row.TypeNewsId == r.TypeNewsId).Select(e => e.TypeNews1).First(),
+                    r.CreateDate,
+                    r.CreateUser,
+                    r.EditDate,
+                    r.EditUser,
+                    r.LocalImage,
+                    r.FileImage,
+                    Image = tableImage.Where(r => r.NewsId == decodeID).ToList(),
+                }).First();
+                return Ok(new
+                {
+                    status = 200,
+                    message = "success",
+                });
             }
             catch (Exception ex)
             {
@@ -480,12 +501,5 @@ namespace backend.Controllers
         }
 
 
-
-        [HttpGet("")]
-        [AllowAnonymous]
-        public IActionResult GetTModels()
-        {
-            return Ok("authorization success");
-        }
     }
 }
