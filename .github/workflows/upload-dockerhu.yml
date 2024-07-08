@@ -37,4 +37,4 @@ jobs:
          docker login -u ${{ secrets.DOCKERHUB_USERNAME }} -p ${{ secrets.DOCKERHUB_PASSWORD }}
          docker pull ${{ secrets.DOCKERHUB_BE }}
          docker stop backend || true
-         docker run --rm -it --name backend -v /backupImage:/app/wwwroot -p 5004:80 -p 5003:443 -e ASPNETCORE_URLS="https://+;http://+" -e ASPNETCORE_HTTPS_PORT=5003 -e ASPNETCORE_Kestrel__Certificates__Default__Password="password" -e ASPNETCORE_Kestrel__Certificates__Default__Path=/https/server.pfx -v /cer/:/https/ minibosss/backpack:latest
+         docker run --rm -i -t --name backend -v /backupImage:/app/wwwroot -p 5004:80 -p 5003:443 -e ASPNETCORE_URLS="https://+;http://+" -e ASPNETCORE_HTTPS_PORT=5003 -e ASPNETCORE_Kestrel__Certificates__Default__Password="password" -e ASPNETCORE_Kestrel__Certificates__Default__Path=/https/server.pfx -v /cer/:/https/ minibosss/backpack:latest
