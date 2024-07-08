@@ -21,6 +21,7 @@ namespace backend.Models
         public string FileImage { get; set; }
         public string LocalImage { get; set; }
         public string Seo { get; set; }
+        public int Position { get; set; }
 
         public virtual ICollection<Typemachine> Typemachines { get; set; }
     }
