@@ -491,8 +491,53 @@ namespace backend.Controllers
         }
 
         [HttpPost("[action]")]
-        [AllowAnonymous]
+        // [AllowAnonymous]
         public IActionResult findNews(string id)
+        {
+            var decodeID = id;
+            var table = _context.News;
+            var tableType = _context.Typenews;
+            var tableImage = _context.Imagenews;
+
+            try
+            {
+                var items = table.Where(r => r.NewsId == decodeID)
+                .Select(r =>
+                new
+                {
+                    r.Title,
+                    r.Content,
+                    r.TypeNewsId,
+                     r.NewsSeo,
+                    TypeNews = tableType.Where(row => row.TypeNewsId == r.TypeNewsId).Select(e => e.TypeNews1).First(),
+                    r.CreateDate,
+                    r.CreateUser,
+                    r.EditDate,
+                    r.EditUser,
+                    r.LocalImage,
+                    r.FileImage,
+                    Image = tableImage.Where(r => r.NewsId == decodeID).ToList(),
+                }).First();
+                return Ok(new
+                {
+                    status = 200,
+                    message = "success",
+                    items,
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(Convert.ToInt32(HttpStatusCode.InternalServerError), new
+                {
+                    status = HttpStatusCode.InternalServerError,
+                    message = ex.Message
+                });
+            }
+        }
+
+         [HttpPost("[action]")]
+        [AllowAnonymous]
+        public IActionResult findNewsShow(string id)
         {
             var decodeID = _service.decoding(id);
             var table = _context.News;
@@ -522,6 +567,7 @@ namespace backend.Controllers
                 {
                     status = 200,
                     message = "success",
+                    items,
                 });
             }
             catch (Exception ex)
