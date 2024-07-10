@@ -195,6 +195,7 @@ namespace backend.Controllers
                     r.Title,
                     r.Content,
                     r.TypeNewsId,
+                    r.NewsSeo,
                     TypeNews = tableType.Where(row => row.TypeNewsId == r.TypeNewsId).Select(e => e.TypeNews1).First(),
                     r.CreateDate,
                     r.CreateUser,
@@ -295,7 +296,8 @@ namespace backend.Controllers
                     }
                 }
 
-
+                   _context.SaveChanges();
+                   
                 if (file.FormFileMulti != null)
                 {
 
@@ -321,7 +323,7 @@ namespace backend.Controllers
                                Local = "/blog/" + imageFileMultiName
                            }
                        );
-
+                         _context.SaveChanges();
                     }
                 }
 
