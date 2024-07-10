@@ -470,7 +470,7 @@ namespace backend.Controllers
                                Local = "/blog/" + imageFileMultiName
                            }
                        );
-
+     _context.SaveChanges();
                     }
                 }
                 _context.SaveChanges();
