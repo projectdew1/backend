@@ -45,6 +45,37 @@ namespace backend.Controllers
 
         }
 
+
+         [HttpGet("[action]")]
+        public IActionResult getTypeNews()
+        {
+            var table = _context.Typenews;
+
+            try
+            {
+                var items = table.OrderBy(r => r.TypeNewsId).Select(r => new {
+                    r.TypeNewsId,
+                    TypeNews = r.TypeNews1
+                }).ToList();
+
+                return Ok(new
+                {
+                    status = 200,
+                    message = "success",
+                    items,
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(Convert.ToInt32(HttpStatusCode.InternalServerError), new
+                {
+                    status = HttpStatusCode.InternalServerError,
+                    message = ex.Message
+                });
+            }
+        }
+        
+
         [HttpPost("[action]")]
         [AllowAnonymous]
         public IActionResult getNews(int pageNumber = 1, int pageSize = 10)
