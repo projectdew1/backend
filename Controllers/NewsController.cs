@@ -550,7 +550,7 @@ namespace backend.Controllers
                 {
                     id = _service.encoding(r.NewsId),
 
-                }).First();
+                }).ToList();
                 return Ok(new
                 {
                     status = 200,
