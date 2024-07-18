@@ -537,7 +537,7 @@ namespace backend.Controllers
         }
 
 
-        [HttpPost("[action]")]
+        [HttpGet("[action]")]
         [AllowAnonymous]
         public IActionResult findNewsIdShow()
 
