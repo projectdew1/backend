@@ -46,14 +46,15 @@ namespace backend.Controllers
         }
 
 
-         [HttpGet("[action]")]
+        [HttpGet("[action]")]
         public IActionResult getTypeNews()
         {
             var table = _context.Typenews;
 
             try
             {
-                var items = table.OrderBy(r => r.TypeNewsId).Select(r => new {
+                var items = table.OrderBy(r => r.TypeNewsId).Select(r => new
+                {
                     r.TypeNewsId,
                     TypeNews = r.TypeNews1
                 }).ToList();
@@ -74,14 +75,14 @@ namespace backend.Controllers
                 });
             }
         }
-        
+
 
         [HttpPost("[action]")]
         [AllowAnonymous]
         public IActionResult getNews(int pageNumber = 1, int pageSize = 10)
         {
             var table = _context.News;
-   var tableType = _context.Typenews;
+            var tableType = _context.Typenews;
             try
             {
                 var totalItems = table.Count();
@@ -296,8 +297,8 @@ namespace backend.Controllers
                     }
                 }
 
-                   _context.SaveChanges();
-                   
+                _context.SaveChanges();
+
                 if (file.FormFileMulti != null)
                 {
 
@@ -323,7 +324,7 @@ namespace backend.Controllers
                                Local = "/blog/" + imageFileMultiName
                            }
                        );
-                         _context.SaveChanges();
+                        _context.SaveChanges();
                     }
                 }
 
@@ -470,7 +471,7 @@ namespace backend.Controllers
                                Local = "/blog/" + imageFileMultiName
                            }
                        );
-     _context.SaveChanges();
+                        _context.SaveChanges();
                     }
                 }
                 _context.SaveChanges();
@@ -508,7 +509,7 @@ namespace backend.Controllers
                     r.Title,
                     r.Content,
                     r.TypeNewsId,
-                     r.NewsSeo,
+                    r.NewsSeo,
                     TypeNews = tableType.Where(row => row.TypeNewsId == r.TypeNewsId).Select(e => e.TypeNews1).First(),
                     r.CreateDate,
                     r.CreateUser,
@@ -535,7 +536,41 @@ namespace backend.Controllers
             }
         }
 
-         [HttpPost("[action]")]
+
+        [HttpPost("[action]")]
+        [AllowAnonymous]
+        public IActionResult findNewsIdShow()
+
+        {
+            var table = _context.News;
+            try
+            {
+                var items = table.Select(r =>
+                new
+                {
+                    id = _service.encoding(r.NewsId),
+
+                }).First();
+                return Ok(new
+                {
+                    status = 200,
+                    message = "success",
+                    items,
+                });
+            }
+            catch (Exception ex)
+            {
+
+                return StatusCode(Convert.ToInt32(HttpStatusCode.InternalServerError), new
+                {
+                    status = HttpStatusCode.InternalServerError,
+                    message = ex.Message
+                });
+            }
+        }
+
+
+        [HttpPost("[action]")]
         [AllowAnonymous]
         public IActionResult findNewsShow(string id)
         {
@@ -553,7 +588,7 @@ namespace backend.Controllers
                     r.Title,
                     r.Content,
                     r.TypeNewsId,
-                     r.NewsSeo,
+                    r.NewsSeo,
                     TypeNews = tableType.Where(row => row.TypeNewsId == r.TypeNewsId).Select(e => e.TypeNews1).First(),
                     r.CreateDate,
                     r.CreateUser,
