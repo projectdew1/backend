@@ -45,6 +45,14 @@ namespace backend.Controllers
 
         }
 
+         public class DataUploadFile
+        {
+            public string Content { get; set; }
+            public IFormFile FormFile { get; set; }
+            public List<IFormFile> FormFileMulti { get; set; }
+
+        }
+
 
         [HttpGet("[action]")]
         public IActionResult getTypeNews()
@@ -225,7 +233,8 @@ namespace backend.Controllers
         }
 
         [HttpPost("[action]")]
-        public IActionResult addNews(string seo, string typeNewsId, string title, string content, string user, [FromForm] FileUploadList file)
+        
+        public IActionResult addNews(string seo, string typeNewsId, string title, string user, [FromForm] DataUploadFile file)
         {
             var table = _context.News;
             var tableType = _context.Typenews;
@@ -250,7 +259,7 @@ namespace backend.Controllers
                     });
                 }
 
-                if (content.Trim() == "")
+                if (file.Content.Trim() == "")
                 {
                     return Ok(new
                     {
@@ -267,6 +276,15 @@ namespace backend.Controllers
                         message = "กรุณากรอกข้อมูลประเภท !",
                     });
                 }
+
+                if(file.FormFile == null){
+                      return Ok(new
+                    {
+                        status = 200,
+                        message = "กรุณาเพิ่มรูปภาพปก !",
+                    });
+                }
+
                 var newsID = table.OrderByDescending(u => u.NewsId).FirstOrDefault();
 
                 var number = _service.GenID(newsID != null ? newsID.NewsId : "", "N");
@@ -279,7 +297,7 @@ namespace backend.Controllers
                        NewsId = number,
                        NewsSeo = seo,
                        Title = title,
-                       Content = content,
+                       Content = file.Content,
                        TypeNewsId = typeNewsId,
                        CreateDate = DateTime.Now,
                        CreateUser = user,
@@ -347,7 +365,7 @@ namespace backend.Controllers
         }
 
         [HttpPut("[action]")]
-        public IActionResult updateNews(string id, string seo, string typeNewsId, string title, string content, string user, [FromForm] FileUploadList file)
+        public IActionResult updateNews(string id, string seo, string typeNewsId, string title, string user, [FromForm] DataUploadFile file)
         {
             var table = _context.News;
             var tableType = _context.Typenews;
@@ -376,7 +394,7 @@ namespace backend.Controllers
                     });
                 }
 
-                if (content.Trim() == "")
+                if (file.Content.Trim() == "")
                 {
                     return Ok(new
                     {
@@ -391,6 +409,14 @@ namespace backend.Controllers
                     {
                         status = 200,
                         message = "กรุณากรอกข้อมูลประเภท !",
+                    });
+                }
+
+                if (items.FileImage == null && file.FormFile == null){
+                    return Ok(new
+                    {
+                        status = 200,
+                        message = "กรุณาเพิ่มรูปภาพปก !",
                     });
                 }
 
@@ -425,7 +451,7 @@ namespace backend.Controllers
 
                 items.NewsSeo = seo;
                 items.Title = title;
-                items.Content = content;
+                items.Content = file.Content;
                 items.TypeNewsId = typeNewsId;
                 items.EditDate = DateTime.Now;
                 items.EditUser = user;
