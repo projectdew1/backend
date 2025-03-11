@@ -14,6 +14,7 @@ namespace backend.Models
             Explaimmachines = new HashSet<Explaimmachine>();
             Imagemachines = new HashSet<Imagemachine>();
             Manualmachines = new HashSet<Manualmachine>();
+            Portfolios = new HashSet<Portfolio>();
             Videomachines = new HashSet<Videomachine>();
         }
 
@@ -34,6 +35,7 @@ namespace backend.Models
         public string LocalImage { get; set; }
         public string MachineSeo { get; set; }
         public string Machinecol { get; set; }
+        public int? Recommend { get; set; }
 
         public virtual Typemachine Type { get; set; }
         public virtual ICollection<Detailmachine> Detailmachines { get; set; }
@@ -41,6 +43,7 @@ namespace backend.Models
         public virtual ICollection<Explaimmachine> Explaimmachines { get; set; }
         public virtual ICollection<Imagemachine> Imagemachines { get; set; }
         public virtual ICollection<Manualmachine> Manualmachines { get; set; }
+        public virtual ICollection<Portfolio> Portfolios { get; set; }
         public virtual ICollection<Videomachine> Videomachines { get; set; }
     }
 }

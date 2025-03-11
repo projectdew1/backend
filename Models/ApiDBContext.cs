@@ -33,6 +33,7 @@ namespace backend.Models
         public virtual DbSet<Manualmachine> Manualmachines { get; set; }
         public virtual DbSet<News> News { get; set; }
         public virtual DbSet<Photoall> Photoalls { get; set; }
+        public virtual DbSet<Portfolio> Portfolios { get; set; }
         public virtual DbSet<Technically> Technicallies { get; set; }
         public virtual DbSet<Typemachine> Typemachines { get; set; }
         public virtual DbSet<Typenews> Typenews { get; set; }
@@ -660,6 +661,8 @@ namespace backend.Models
 
                 entity.Property(e => e.Price).HasColumnName("price");
 
+                entity.Property(e => e.Recommend).HasColumnName("recommend");
+
                 entity.Property(e => e.Soldout)
                     .HasColumnName("soldout")
                     .HasDefaultValueSql("'0'");
@@ -817,6 +820,70 @@ namespace backend.Models
                     .HasColumnType("varchar(300)")
                     .HasCharSet("utf8")
                     .HasCollation("utf8_general_ci");
+            });
+
+            modelBuilder.Entity<Portfolio>(entity =>
+            {
+                entity.ToTable("portfolio");
+
+                entity.HasIndex(e => e.MachineId, "machineID_idx");
+
+                entity.Property(e => e.PortfolioId)
+                    .HasColumnType("varchar(7)")
+                    .HasColumnName("portfolioID")
+                    .HasCharSet("utf8")
+                    .HasCollation("utf8_general_ci");
+
+                entity.Property(e => e.CreateDate).HasColumnType("datetime");
+
+                entity.Property(e => e.CreateUser)
+                    .HasColumnType("varchar(40)")
+                    .HasCharSet("utf8")
+                    .HasCollation("utf8_general_ci");
+
+                entity.Property(e => e.EditDate).HasColumnType("datetime");
+
+                entity.Property(e => e.EditUser)
+                    .HasColumnType("varchar(40)")
+                    .HasCharSet("utf8")
+                    .HasCollation("utf8_general_ci");
+
+                entity.Property(e => e.FileImage)
+                    .HasColumnType("varchar(30)")
+                    .HasColumnName("fileImage")
+                    .HasCharSet("utf8")
+                    .HasCollation("utf8_general_ci");
+
+                entity.Property(e => e.LocalImage)
+                    .HasColumnType("varchar(300)")
+                    .HasCharSet("utf8")
+                    .HasCollation("utf8_general_ci");
+
+                entity.Property(e => e.MachineId)
+                    .IsRequired()
+                    .HasColumnType("varchar(7)")
+                    .HasColumnName("machineID")
+                    .HasCharSet("utf8")
+                    .HasCollation("utf8_general_ci");
+
+                entity.Property(e => e.Seo)
+                    .IsRequired()
+                    .HasColumnType("longtext")
+                    .HasColumnName("seo")
+                    .HasCharSet("utf8")
+                    .HasCollation("utf8_general_ci");
+
+                entity.Property(e => e.Title)
+                    .IsRequired()
+                    .HasColumnType("varchar(500)")
+                    .HasColumnName("title")
+                    .HasCharSet("utf8")
+                    .HasCollation("utf8_general_ci");
+
+                entity.HasOne(d => d.Machine)
+                    .WithMany(p => p.Portfolios)
+                    .HasForeignKey(d => d.MachineId)
+                    .HasConstraintName("pmachineID");
             });
 
             modelBuilder.Entity<Technically>(entity =>
