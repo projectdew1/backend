@@ -11,11 +11,13 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 
-namespace backend.Controllers {
+namespace backend.Controllers
+{
     [Authorize]
     [Route("api/[controller]")]
 
-     public class PortfolioController : ControllerBase {
+    public class PortfolioController : ControllerBase
+    {
         private IConfiguration _config { get; }
         private readonly ApiDBContext _context;
 
@@ -30,7 +32,7 @@ namespace backend.Controllers {
             _service = service;
         }
 
-            public class FileUpload
+        public class FileUpload
         {
             public IFormFile FormFile { get; set; }
         }
@@ -53,7 +55,7 @@ namespace backend.Controllers {
                 var items = table
             .Include(p => p.Machine) // JOIN ตาราง Machine
             .OrderBy(r => r.PortfolioId)
-            .Select(p => new 
+            .Select(p => new
             {
                 p.PortfolioId,
                 p.Seo,
@@ -86,12 +88,24 @@ namespace backend.Controllers {
         }
 
         [HttpPost("[action]")]
-          public IActionResult getPortfolioById(string id)
+        public IActionResult getPortfolioById(string id)
         {
             var table = _context.Portfolios;
+            var tableImages = _context.Imageportfolios;
             try
             {
-                var items = table.Where(r => r.PortfolioId == id).First();
+                var items = table
+    .Where(r => r.PortfolioId == id)
+    .Select(r => new
+    {
+        r.Title,
+        r.MachineId,
+        r.Seo,
+        r.LocalImage,
+        r.FileImage,
+        ImageList = tableImages.Where(r => r.PortfolioId == id).ToList()
+    })
+    .First();
 
 
                 return Ok(new
@@ -113,8 +127,8 @@ namespace backend.Controllers {
         }
 
 
-          [HttpPost("[action]")]
-          public IActionResult addPortfolio(string machineId,string user,string title,string seo,[FromForm] FileUploadList file)
+        [HttpPost("[action]")]
+        public IActionResult addPortfolio(string machineId, string user, string title, string seo, [FromForm] FileUploadList file)
         {
             var table = _context.Portfolios;
             var tableImages = _context.Imageportfolios;
@@ -123,7 +137,7 @@ namespace backend.Controllers {
                 var PortfolioFindId = table.OrderByDescending(u => u.PortfolioId).FirstOrDefault();
                 var number = _service.GenID(PortfolioFindId != null ? PortfolioFindId.PortfolioId : "", "P");
 
-                 var imageFileName = file.FormFile != null ? number + DateTime.Now.ToString("ddMMyy_HHmmss") + file.FormFile.FileName.Substring(file.FormFile.FileName.LastIndexOf(".")) : null;
+                var imageFileName = file.FormFile != null ? number + DateTime.Now.ToString("ddMMyy_HHmmss") + file.FormFile.FileName.Substring(file.FormFile.FileName.LastIndexOf(".")) : null;
 
                 if (file.FormFile != null)
                 {
@@ -134,22 +148,22 @@ namespace backend.Controllers {
                     }
                 }
 
-                 table.Add(
-                       new Portfolio
-                       {
-                           MachineId = machineId, 
-                           PortfolioId = number, 
-                           Seo = seo,
-                           Title = title,
-                           CreateDate = DateTime.Now,
-                           CreateUser = user,
-                           FileImage = imageFileName,
-                           LocalImage = file.FormFile != null ? "/portfolio/" + imageFileName : null
-                       }
-                   );
+                table.Add(
+                      new Portfolio
+                      {
+                          MachineId = machineId,
+                          PortfolioId = number,
+                          Seo = seo,
+                          Title = title,
+                          CreateDate = DateTime.Now,
+                          CreateUser = user,
+                          FileImage = imageFileName,
+                          LocalImage = file.FormFile != null ? "/portfolio/" + imageFileName : null
+                      }
+                  );
                 _context.SaveChanges();
 
-                 ///////////////////////////// portfolio  รูปภาพ List /////////////////////// 
+                ///////////////////////////// portfolio  รูปภาพ List /////////////////////// 
 
 
                 if (file.FormFileMulti != null)
@@ -201,17 +215,18 @@ namespace backend.Controllers {
 
 
         [HttpDelete("[action]")]
-        public IActionResult deletePortfolio(string id){
+        public IActionResult deletePortfolio(string id)
+        {
             var table = _context.Portfolios;
             var tableImages = _context.Imageportfolios;
 
             try
             {
 
-            var items = table.Where(r => r.PortfolioId == id).First();
-            var itemsImages = tableImages.Where(r => r.PortfolioId == id).ToList();
+                var items = table.Where(r => r.PortfolioId == id).First();
+                var itemsImages = tableImages.Where(r => r.PortfolioId == id).ToList();
 
-             if (items.FileImage != null)
+                if (items.FileImage != null)
                 {
                     var path = Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot/portfolio", items.FileImage);
                     if (System.IO.File.Exists(path))
@@ -220,7 +235,7 @@ namespace backend.Controllers {
                     }
                 }
 
-              if (itemsImages.Count() > 0)
+                if (itemsImages.Count() > 0)
                 {
                     foreach (var item in itemsImages)
                     {
@@ -232,24 +247,25 @@ namespace backend.Controllers {
                     }
                 }
 
-                 table.Remove(items);
-                 if (itemsImages.Count() > 0)
+                table.Remove(items);
+                if (itemsImages.Count() > 0)
                 {
 
                     foreach (var item in itemsImages)
                     {
                         tableImages.Remove(item);
                     }
-                }
 
-                 _context.SaveChanges();
+                }
+                _context.SaveChanges();
+
                 return Ok(new
                 {
                     status = 200,
                     message = "success",
                 });
             }
-                 catch (Exception ex)
+            catch (Exception ex)
             {
                 return StatusCode(Convert.ToInt32(HttpStatusCode.InternalServerError), new
                 {
@@ -261,7 +277,8 @@ namespace backend.Controllers {
 
 
         [HttpPost("[action]")]
-         public IActionResult updatePortfolio(string id,string machineId,string user,string title,string seo,[FromForm] FileUploadList file){
+        public IActionResult updatePortfolio(string id, string machineId, string user, string title, string seo, [FromForm] FileUploadList file)
+        {
 
             var table = _context.Portfolios;
             var tableImages = _context.Imageportfolios;
@@ -270,7 +287,7 @@ namespace backend.Controllers {
             {
                 var items = table.Where(r => r.PortfolioId == id).First();
 
-                 var imageFileName = file.FormFile != null ? id + DateTime.Now.ToString("ddMMyy_HHmmss") + file.FormFile.FileName.Substring(file.FormFile.FileName.LastIndexOf(".")) : null;
+                var imageFileName = file.FormFile != null ? id + DateTime.Now.ToString("ddMMyy_HHmmss") + file.FormFile.FileName.Substring(file.FormFile.FileName.LastIndexOf(".")) : null;
 
                 if (items.FileImage != null && file.FormFile != null)
                 {
@@ -306,22 +323,24 @@ namespace backend.Controllers {
                 items.EditUser = user;
                 _context.SaveChanges();
 
-                 if (tableImages.Count() > 0)
+                var itemsImages = tableImages.Where(r => r.PortfolioId == id).ToList();
+                if (itemsImages.Count() > 0)
                 {
-                    foreach (var item in tableImages)
+                    foreach (var item in itemsImages)
                     {
                         var path = Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot/portfolioList", item.FileName);
                         if (System.IO.File.Exists(path))
                         {
                             System.IO.File.Delete(path);
                         }
+                        tableImages.Remove(item);
                     }
                 }
 
                 _context.SaveChanges();
 
 
-                 ///////////////////////////// machine  รูปภาพ List /////////////////////// 
+                ///////////////////////////// machine  รูปภาพ List /////////////////////// 
 
 
                 if (file.FormFileMulti != null)
@@ -353,7 +372,7 @@ namespace backend.Controllers {
                     }
                 }
 
-                 return Ok(new
+                return Ok(new
                 {
                     status = 200,
                     message = "success",
@@ -367,68 +386,69 @@ namespace backend.Controllers {
                     message = ex.Message
                 });
             }
-         }
+        }
 
         [HttpGet("[action]")]
         [AllowAnonymous]
         public IActionResult portfolioGroup()
         {
-        try
-        {
-        var groupedItems = _context.Portfolios
-            .Include(p => p.Machine) // JOIN ตาราง Machine
-            .Where(p => p.Machine != null) // ป้องกัน Machine เป็น null
-            .GroupBy(p => p.MachineId) // Group By MachineId
-            .Select(g => new
+            try
             {
-                MachineId = g.Key, // ใช้ Key เป็น MachineId
-                g.First().Machine.MachineName, // ดึงชื่อเครื่องจาก Machine
-                g.First().Machine.LocalImage,
-                  g.First().Machine.FileImage,
-                enID = _service.encoding(g.Key),
+                var groupedItems = _context.Portfolios
+                    .Include(p => p.Machine) // JOIN ตาราง Machine
+                    .Where(p => p.Machine != null) // ป้องกัน Machine เป็น null
+                    .GroupBy(p => p.MachineId) // Group By MachineId
+                    .Select(g => new
+                    {
+                        MachineId = g.Key, // ใช้ Key เป็น MachineId
+                        g.First().Machine.MachineName, // ดึงชื่อเครื่องจาก Machine
+                        g.First().Machine.LocalImage,
+                        g.First().Machine.FileImage,
+                        enID = _service.encoding(g.Key),
 
-            });
+                    });
 
-             return Ok(new
-            {
-            status = 200,
-            message = "success",
-            items = groupedItems
-            });
-        }
+                return Ok(new
+                {
+                    status = 200,
+                    message = "success",
+                    items = groupedItems
+                });
+            }
             catch (Exception ex)
-        {
-             return StatusCode(Convert.ToInt32(HttpStatusCode.InternalServerError), new
-        {
-            status = HttpStatusCode.InternalServerError,
-            message = ex.Message
-        });
-        }
+            {
+                return StatusCode(Convert.ToInt32(HttpStatusCode.InternalServerError), new
+                {
+                    status = HttpStatusCode.InternalServerError,
+                    message = ex.Message
+                });
+            }
         }
 
         [HttpGet("[action]")]
         [AllowAnonymous]
 
-         public IActionResult portfolioByMachineId(string id){
+        public IActionResult portfolioByMachineId(string id)
+        {
             var table = _context.Portfolios;
             var decodeID = _service.decoding(id);
             try
             {
-                  var items = table
-                  .Include(p => p.Machine)
-                  .Where(r => r.MachineId == decodeID)
-                  .OrderBy(r => r.PortfolioId)
-                  .Select(p => new 
-            {
-                p.Title,
-                p.FileImage,
-                p.LocalImage,
-                 enID = _service.encoding(p.PortfolioId),
-                MachineName = p.Machine != null ? p.Machine.MachineName : null // ดึงชื่อเครื่องจาก Machine
-            })
-                  .ToList();
+                var items = table
+                .Include(p => p.Machine)
+                .Where(r => r.MachineId == decodeID)
+                .OrderBy(r => r.PortfolioId)
+                .Select(p => new
+                {
+                    p.Title,
+                    p.FileImage,
+                    p.LocalImage,
+                    enID = _service.encoding(p.PortfolioId),
+                    MachineName = p.Machine != null ? p.Machine.MachineName : null // ดึงชื่อเครื่องจาก Machine
+                })
+                .ToList();
 
-                    return Ok(new
+                return Ok(new
                 {
                     status = 200,
                     message = "success",
@@ -438,40 +458,41 @@ namespace backend.Controllers {
             }
             catch (Exception ex)
             {
-                
-            return StatusCode(Convert.ToInt32(HttpStatusCode.InternalServerError), new
-            {
-            status = HttpStatusCode.InternalServerError,
-            message = ex.Message
-            });
+
+                return StatusCode(Convert.ToInt32(HttpStatusCode.InternalServerError), new
+                {
+                    status = HttpStatusCode.InternalServerError,
+                    message = ex.Message
+                });
             }
-         }
+        }
 
 
-           [HttpGet("[action]")]
+        [HttpGet("[action]")]
         [AllowAnonymous]
 
-         public IActionResult portfolioById(string id){
+        public IActionResult portfolioById(string id)
+        {
             var table = _context.Portfolios;
             var tableImage = _context.Imageportfolios;
             var decodeID = _service.decoding(id);
             try
             {
-                  var items = table
-                  .Where(r => r.PortfolioId == decodeID)
-                  .OrderBy(r => r.PortfolioId)
-                  .Select(p => new 
-            {
-                p.Seo,
-                p.Title,
-                p.FileImage,
-                p.LocalImage,
-                imageList = tableImage.Where(r => r.PortfolioId == decodeID).ToList(),
-             
-            })
-                  .ToList();
+                var items = table
+                .Where(r => r.PortfolioId == decodeID)
+                .OrderBy(r => r.PortfolioId)
+                .Select(p => new
+                {
+                    p.Seo,
+                    p.Title,
+                    p.FileImage,
+                    p.LocalImage,
+                    imageList = tableImage.Where(r => r.PortfolioId == decodeID).ToList(),
 
-                    return Ok(new
+                })
+                .ToList();
+
+                return Ok(new
                 {
                     status = 200,
                     message = "success",
@@ -481,16 +502,16 @@ namespace backend.Controllers {
             }
             catch (Exception ex)
             {
-                
-            return StatusCode(Convert.ToInt32(HttpStatusCode.InternalServerError), new
-            {
-            status = HttpStatusCode.InternalServerError,
-            message = ex.Message
-            });
+
+                return StatusCode(Convert.ToInt32(HttpStatusCode.InternalServerError), new
+                {
+                    status = HttpStatusCode.InternalServerError,
+                    message = ex.Message
+                });
             }
-         }
-
-
-
         }
+
+
+
+    }
 }
